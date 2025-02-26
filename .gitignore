@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# ---------IDE Settings-----------
+# Visual Studio
+/.vs
+/out
+# --------------------------------
