@@ -2,9 +2,7 @@
 
 project(statlog LANGUAGES CXX)
 
-# Project options
-option(STATLOG_BUILD_SHARED "Build shared library" ON)
-option(STATLOG_BUILD_STATIC "Build static library" ON) 
+option(STATLOG_BUILD_TESTS "Build tests for statlog" ON)
 
 # Set STATLOG_MAIN_PROJECT to ON if we are building statlog
 # Check if statlog is being used directly or via add_subdirectory, but allow overriding
@@ -17,3 +15,7 @@ if (NOT DEFINED STATLOG_MAIN_PROJECT)
 endif()
 
 add_subdirectory("statlog")
+
+if (STATLOG_BUILD_TESTS)
+    add_subdirectory("tests")
+endif()
