@@ -27,6 +27,17 @@ namespace statlog {
     };
     using null_mutex = null_mutex_t;
 
+    struct mutex_t {
+    public:
+        void lock() { _mutex->lock(); }
+        void unlock() { _mutex->unlock(); }
+
+    private:
+        std::unique_ptr<std::mutex> _mutex = std::make_unique<std::mutex>();
+    };
+    using mutex = mutex_t;
+    static_assert(std::is_move_constructible_v<mutex>);
+
     template <typename S, typename M, pattern P>
     class sink_t {
     public:
@@ -62,8 +73,5 @@ namespace statlog {
 
     template <typename S, typename M, pattern P>
     using sink = sink_t<S, M, P>;
-
-    template <typename T, typename D = std::default_delete<T>>
-    using sink_pointer = std::unique_ptr<T, D>;
 }
 #endif
