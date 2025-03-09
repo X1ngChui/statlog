@@ -12,7 +12,7 @@ namespace statlog {
         basic_stdout_sink_t(level l = level::info) : sink<basic_stdout_sink_t, M>(l) {}
 
         void _sink(std::string_view msg) {
-            std::puts(msg.data());
+            std::fwrite(msg.data(), sizeof(char), msg.size(), stdout);
         }
 
         void _flush() {

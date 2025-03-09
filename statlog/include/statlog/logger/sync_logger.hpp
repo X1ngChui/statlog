@@ -15,12 +15,20 @@ namespace statlog {
     template <typename... Sinks>
     class sync_logger : public logger<sync_logger<Sinks...>> {
     public:
-        explicit sync_logger(Sinks&&... sinks, level l = level::info) : _sinks(std::forward<Sinks>(sinks)...) {}
+        explicit sync_logger(Sinks&&... sinks) : _sinks(std::forward<Sinks>(sinks)...) {}
 
         template <typename... Args>
         void log(level l, std::format_string<Args...> fmt, Args&&... args) {  
             std::apply([&](auto&&... sink) {
-                (sink.sink(l, std::format(fmt, std::forward<Args>(args)...)), ...);
+                ([&]() { 
+                    if (sink.should_sink(l)) {
+                        sink.sink(std::format(fmt, std::forward<Args>(args)...));
+                    }
+                    if (sink.should_flush(l)) {
+                        sink.flush();
+                    }
+
+                    }(), ...);
                 }, _sinks);
         }
 

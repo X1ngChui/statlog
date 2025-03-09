@@ -31,11 +31,9 @@ namespace statlog {
             flush();
         }
 
-        void sink(level l, std::string msg) {
-            if (should_sink(l)) {
-                std::lock_guard<M> lock(_mutex);
-                static_cast<S*>(this)->_sink(msg);
-            }
+        void sink(std::string msg) {
+            std::lock_guard<M> lock(_mutex);
+            static_cast<S*>(this)->_sink(msg);
         }
 
         void flush() {
@@ -48,8 +46,12 @@ namespace statlog {
             _level = l;
         }
 
-        bool should_sink(level l) const {
+        constexpr bool should_sink(level l) const noexcept {
             return l >= _level;
+        }
+
+        static constexpr bool should_flush(level l) noexcept {
+            return l >= level::warn;
         }
     private:
         M _mutex;
