@@ -44,7 +44,7 @@ namespace statlog {
                     break;
                 }
             }
-
+            ss << '\n';
             return ss.str();
         }
     };

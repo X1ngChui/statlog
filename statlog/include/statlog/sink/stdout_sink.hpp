@@ -10,6 +10,7 @@ namespace statlog {
     class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P>, M, P> {
     public:
         basic_stdout_sink_t(level l = level::info) : sink<basic_stdout_sink_t, M, P>(l) {}
+        ~basic_stdout_sink_t() { _flush(); }
 
         void _sink(const std::string& message) {
             std::fwrite(message.data(), sizeof(char), message.size(), stdout);
@@ -27,7 +28,7 @@ namespace statlog {
         void lock() { _mutex.lock(); }
         void unlock() { _mutex.unlock(); }
     private:
-        inline static std::mutex _mutex;
+        inline static std::mutex _mutex{};
     };
     using stdout_mutex = stdout_mutex_t;
 

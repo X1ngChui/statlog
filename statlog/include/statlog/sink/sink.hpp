@@ -12,6 +12,7 @@
 #include <format>
 #include <type_traits>
 #include <concepts>
+#include <memory>
 
 namespace statlog {
     template <typename T>
@@ -30,9 +31,6 @@ namespace statlog {
     class sink_t {
     public:
         constexpr sink_t(level l) noexcept : _level(l) {}
-        ~sink_t() {
-            flush();
-        }
 
         void sink(const logger_message& msg) {
             std::lock_guard<M> lock(_mutex);
@@ -64,5 +62,8 @@ namespace statlog {
 
     template <typename S, typename M, pattern P>
     using sink = sink_t<S, M, P>;
+
+    template <typename T, typename D = std::default_delete<T>>
+    using sink_pointer = std::unique_ptr<T, D>;
 }
 #endif
