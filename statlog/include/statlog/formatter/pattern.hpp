@@ -4,6 +4,7 @@
 #define STATLOG_FORMATTER_PATTERN_INCLUDED
 #include <statlog/formatter/token.hpp>
 
+#include <cassert>
 #include <array>
 #include <algorithm>
 
@@ -24,46 +25,40 @@ namespace statlog {
             return _tokens.begin() + _ntokens;
         }
 
-        constexpr const char* str() const {
+        constexpr const char* cstr() const {
             return _str.data();
-        }
-
-        consteval std::size_t reserve_size() const {
-            std::size_t size = 0;
-            for (const token& token : *this) {
-                size += token.reserve_size();
-            }
-            return size;
         }
 
     private:
         consteval void parse() {
             // ignore null terminator
-            for (std::size_t cursor = 0; cursor < N - 1;) { 
-                if (lookahead(cursor, "%t")) {
-                    add_thread_id(cursor);
-                    cursor = take(cursor, "%t");
+            for (std::size_t cursor = 0; cursor < LEN;) {
+                if (lookahead(cursor, token_str::message)) {
+                    add_message();
+                    cursor = take(cursor, token_str::message);
                 }
-                else if (lookahead(cursor, "%p")) {
-                    add_process_id(cursor);
-                    cursor = take(cursor, "%p");
+                else if (lookahead(cursor, token_str::thread_id)) {
+                    add_thread_id();
+                    cursor = take(cursor, token_str::thread_id);
                 }
-                else if (lookahead(cursor, "%n")) {
-                    add_logger_name(cursor);
-                    cursor = take(cursor, "%n");
+                else if (lookahead(cursor, token_str::logger_name)) {
+                    add_logger_name();
+                    cursor = take(cursor, token_str::logger_name);
                 }
-                else if (lookahead(cursor, "%l")) {
-                    add_level_lower(cursor);
-                    cursor = take(cursor, "%l");
+                else if (lookahead(cursor, token_str::level_lower)) {
+                    add_level_lower();
+                    cursor = take(cursor, token_str::level_lower);
                 }
-                else if (lookahead(cursor, "%L")) {
-                    add_level_upper(cursor);
-                    cursor = take(cursor, "%L");
+                else if (lookahead(cursor, token_str::level_upper)) {
+                    add_level_upper();
+                    cursor = take(cursor, token_str::level_upper);
                 }
-                // literal
                 else {
+                    // literal should not start with '%'
+                    assert(!lookahead(cursor, token_str::token_prefix)); 
+
                     std::size_t start = cursor;
-                    while (cursor < N - 1 && _str[cursor] != '%') {
+                    while (cursor < LEN && !lookahead(cursor, token_str::token_prefix)) {
                         ++cursor;
                     }
                     add_literal(start, cursor);
@@ -86,33 +81,39 @@ namespace statlog {
             return from + M - 1;
         }
 
+        consteval token& next_token() {
+            return _tokens[_ntokens++];
+        }
+
         consteval void add_literal(size_t start, size_t end) {
-            _tokens[_ntokens++] = { token_type::literal, start, end };
+            next_token() = { token_type::literal, start, end };
         }
 
-        consteval void add_thread_id(size_t pos) {
-            _tokens[_ntokens++] = { token_type::thread_id };
+        consteval void add_message() {
+            next_token() = { token_type::message };
         }
 
-        consteval void add_process_id(size_t pos) {
-            _tokens[_ntokens++] = { token_type::process_id };
+        consteval void add_thread_id() {
+            next_token() = { token_type::thread_id };
         }
 
-        consteval void add_logger_name(size_t pos) {
-            _tokens[_ntokens++] = { token_type::logger_name };
+        consteval void add_logger_name() {
+            next_token() = { token_type::logger_name };
         }
 
-        consteval void add_level_lower(size_t pos) {
-            _tokens[_ntokens++] = { token_type::level_lower };
+        consteval void add_level_lower() {
+            next_token() = { token_type::level_lower };
         }
 
-        consteval void add_level_upper(size_t pos) {
-            _tokens[_ntokens++] = { token_type::level_upper };
+        consteval void add_level_upper() {
+            next_token() = { token_type::level_upper };
         }
     public:
+        inline static constexpr std::size_t LEN = N - 1;
+
         // Due to the C++20 standard, the following member variables must be public.
         std::array<char, N> _str{};
-        std::array<token, N> _tokens{};
+        std::array<token, 2 * N / 3> _tokens{};
         std::size_t _ntokens = 0;
     };
     template <size_t N>

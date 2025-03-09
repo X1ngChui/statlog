@@ -7,11 +7,14 @@
 
 #include <format>
 #include <utility>
+#include <thread>
 
 namespace statlog {
     template <typename L>
-    class logger {
+    class logger_t {
     public:
+        explicit logger_t(std::string_view name) : _name(name) {}
+
         template <typename T>
         void trace(T&& message) {
             static_cast<L*>(this)->log(level::trace, "{}", std::forward<T>(message));
@@ -71,6 +74,23 @@ namespace statlog {
         void fatal(std::format_string<Args...> fmt, Args&&... args) {
             static_cast<L*>(this)->log(level::fatal, fmt, std::forward<Args>(args)...);
         }
+
+        const std::string& name() const noexcept {
+            return _name;
+        }
+    private:
+        std::string _name;
     };
+
+    template <typename L>
+    using logger = logger_t<L>;
+
+    struct logger_message_t {
+        level level;
+        std::thread::id thread_id;
+        const std::string& logger_name;
+        std::string message;
+    };
+    using logger_message = logger_message_t;
 }
 #endif

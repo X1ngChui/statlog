@@ -4,6 +4,9 @@
 #define STATLOG_SINK_SINK_INCLUDED
 
 #include <statlog/logger/level.hpp>
+#include <statlog/logger/logger.hpp>
+#include <statlog/formatter/pattern.hpp>
+#include <statlog/formatter/formatter.hpp>
 
 #include <mutex>
 #include <format>
@@ -12,7 +15,7 @@
 
 namespace statlog {
     template <typename T>
-    concept type_sink = requires(T t, std::string_view msg) {
+    concept type_sink = requires(T t, std::string msg) {
         { t._sink(msg) } -> std::same_as<void>;
         { t._flush() } -> std::same_as<void>;
     };
@@ -23,7 +26,7 @@ namespace statlog {
     };
     using null_mutex = null_mutex_t;
 
-    template <typename S, typename M>
+    template <typename S, typename M, pattern P>
     class sink_t {
     public:
         constexpr sink_t(level l) noexcept : _level(l) {}
@@ -31,9 +34,9 @@ namespace statlog {
             flush();
         }
 
-        void sink(std::string msg) {
+        void sink(const logger_message& msg) {
             std::lock_guard<M> lock(_mutex);
-            static_cast<S*>(this)->_sink(msg);
+            static_cast<S*>(this)->_sink(_formatter::format(msg));
         }
 
         void flush() {
@@ -54,11 +57,12 @@ namespace statlog {
             return l >= level::warn;
         }
     private:
+        using _formatter = formatter<P>;
         M _mutex;
         level _level = level::info;
     };
 
-    template <typename S, typename M>
-    using sink = sink_t<S, M>;
+    template <typename S, typename M, pattern P>
+    using sink = sink_t<S, M, P>;
 }
 #endif

@@ -3,45 +3,49 @@
 #ifndef STATLOG_FORMATTER_FORMATTER_INCLUDED
 #define STATLOG_FORMATTER_FORMATTER_INCLUDED
 
+#include <statlog/logger/logger.hpp>
 #include <statlog/formatter/token.hpp>
 #include <statlog/formatter/pattern.hpp>
 
 #include <string>
+#include <sstream>
 
 namespace statlog {
-    using formatter_buffer = std::string;
-
     template <pattern P>
     class formatter_t {
     public:
-        static void format(formatter_buffer& buffer) {
-            constexpr std::size_t reserve_size = P.reserve_size();
-            buffer.reserve(reserve_size);
+        static std::string format(const logger_message& msg) {
+            std::stringstream ss;
 
             for (const token& token : P) {
                 switch (token.type) {
                 case token_type::literal:
-                    buffer.append(P.str() + token.start, token.end - token.start);
+                    ss.write(P.cstr() + token.start, token.end - token.start);
+                    break;
+                case token_type::message:
+                    ss << msg.message;
                     break;
                 case token_type::thread_id:
-                    buffer += "thread_id";
-                    break;
-                case token_type::process_id:
-                    buffer += "process_id";
+                    ss << msg.thread_id;
                     break;
                 case token_type::logger_name:
-                    buffer += "logger_name";
+                    ss << msg.logger_name;
                     break;
                 case token_type::level_lower:
-                    buffer += "level_lower";
+                    ss << to_string_lower(msg.level);
                     break;
                 case token_type::level_upper:
-                    buffer += "level_upper";
+                    ss << to_string_upper(msg.level);
+                    break;
+                case token_type::dummy:
+                    std::unreachable();
                     break;
                 default:
                     break;
                 }
             }
+
+            return ss.str();
         }
     };
     template <pattern P>
