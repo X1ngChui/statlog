@@ -11,7 +11,7 @@ TEST_CASE("exclusive sinks") {
     statlog::file_sink_mt<pattern> file_sink("file.log");
     statlog::stdout_sink_mt<pattern> stdout_sink{};
 
-    statlog::sync_logger logger{ "file", statlog::level::info, std::move(file_sink), std::move(stdout_sink)};
+    statlog::sync_logger logger{ "file", statlog::level::trace, std::move(file_sink), std::move(stdout_sink)};
     
     std::thread t1([&logger] {
         for (int i = 0; i < 1000; ++i) {
