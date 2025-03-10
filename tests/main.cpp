@@ -6,12 +6,12 @@
 #include <thread>
 #include <cstdio>
 
-TEST_CASE("file_sink") {
+TEST_CASE("exclusive sinks") {
     constexpr statlog::pattern_t pattern("[%L][%t][%n] %v");
-    statlog::file_sink_st<pattern> file_sink("file.log");
-    //statlog::stdout_sink_mt<pattern> stdout_sink{};
+    statlog::file_sink_mt<pattern> file_sink("file.log");
+    statlog::stdout_sink_mt<pattern> stdout_sink{ statlog::level::warn };
 
-    statlog::sync_logger logger{ "file", std::move(file_sink) };
+    statlog::sync_logger logger{ "file", std::move(file_sink), std::move(stdout_sink)};
     
     std::thread t1([&logger] {
         for (int i = 0; i < 1000; ++i) {
@@ -26,4 +26,16 @@ TEST_CASE("file_sink") {
     
     t1.join();
     t2.join();
+}
+
+TEST_CASE("shared sinks") {
+    constexpr statlog::pattern_t pattern("[%L][%t][%n] %v");
+    statlog::file_sink_st<pattern> file_sink("shared_file.log");
+    statlog::sync_logger<decltype(file_sink)&> logger1{ "logger_one", file_sink };
+    statlog::sync_logger<decltype(file_sink)&> logger2{ "logger_two", file_sink };
+
+    for (int i = 0; i < 1000; i++) {
+        logger1.info("Hello, {}", i);
+        logger2.info("Hello, {}", i);
+    }
 }
