@@ -17,12 +17,12 @@ namespace statlog {
             parse();
         }
 
-        constexpr auto begin() const {
-            return _tokens.begin();
+        consteval std::size_t size() const {
+            return _ntokens;
         }
 
-        constexpr auto end() const {
-            return _tokens.begin() + _ntokens;
+        consteval const token& operator[](std::size_t i) const {
+            return _tokens[i];
         }
 
         constexpr const char* cstr() const {
