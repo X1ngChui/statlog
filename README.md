@@ -21,7 +21,7 @@
 ### Installation
 
 ```bash
-git clone --recursive https://github.com/yourusername/statlog.git
+git clone https://github.com/X1ngChui/statlog.git --recursive 
 # Build using your preferred C++ build system
 ```
 
