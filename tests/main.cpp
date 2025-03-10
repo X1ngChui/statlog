@@ -7,9 +7,9 @@
 #include <cstdio>
 
 TEST_CASE("exclusive sinks") {
-    constexpr statlog::pattern_t pattern("[%L][%t][%n] %v");
+    constexpr statlog::pattern pattern("[%L][%t][%n] %v");
     statlog::file_sink_mt<pattern> file_sink("file.log");
-    statlog::stdout_sink_mt<pattern> stdout_sink{ statlog::level::warn };
+    statlog::stdout_sink_mt<pattern> stdout_sink;
 
     statlog::sync_logger logger{ "file", std::move(file_sink), std::move(stdout_sink)};
     
@@ -29,7 +29,7 @@ TEST_CASE("exclusive sinks") {
 }
 
 TEST_CASE("shared sinks") {
-    constexpr statlog::pattern_t pattern("[%L][%t][%n] %v");
+    constexpr statlog::pattern pattern("[%L][%t][%n] %v");
     statlog::file_sink_st<pattern> file_sink("shared_file.log");
     statlog::sync_logger<decltype(file_sink)&> logger1{ "logger_one", file_sink };
     statlog::sync_logger<decltype(file_sink)&> logger2{ "logger_two", file_sink };

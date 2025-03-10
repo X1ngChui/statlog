@@ -34,34 +34,22 @@ namespace statlog {
             // ignore null terminator
             for (std::size_t cursor = 0; cursor < LEN;) {
                 if (lookahead(cursor, token_str::message)) {
-                    add_message();
-                    cursor = take(cursor, token_str::message);
+                    cursor = add_message(cursor);
                 }
                 else if (lookahead(cursor, token_str::thread_id)) {
-                    add_thread_id();
-                    cursor = take(cursor, token_str::thread_id);
+                    cursor = add_thread_id(cursor);
                 }
                 else if (lookahead(cursor, token_str::logger_name)) {
-                    add_logger_name();
-                    cursor = take(cursor, token_str::logger_name);
+                    cursor = add_logger_name(cursor);
                 }
                 else if (lookahead(cursor, token_str::level_lower)) {
-                    add_level_lower();
-                    cursor = take(cursor, token_str::level_lower);
+                    cursor = add_level_lower(cursor);
                 }
                 else if (lookahead(cursor, token_str::level_upper)) {
-                    add_level_upper();
-                    cursor = take(cursor, token_str::level_upper);
+                    cursor = add_level_upper(cursor);
                 }
                 else {
-                    // literal should not start with '%'
-                    assert(!lookahead(cursor, token_str::token_prefix)); 
-
-                    std::size_t start = cursor;
-                    while (cursor < LEN && !lookahead(cursor, token_str::token_prefix)) {
-                        ++cursor;
-                    }
-                    add_literal(start, cursor);
+                    cursor = add_literal(cursor);
                 }
             }
         }
@@ -77,36 +65,50 @@ namespace statlog {
         }
 
         template <std::size_t M>
-        static consteval std::size_t take(std::size_t from, const char(&target)[M]) {
-            return from + M - 1;
+        static consteval std::size_t token_size(const char(&target)[M]) {
+            return M - 1;
         }
 
         consteval token& next_token() {
             return _tokens[_ntokens++];
         }
 
-        consteval void add_literal(size_t start, size_t end) {
-            next_token() = { token_type::literal, start, end };
+        consteval std::size_t add_literal(std::size_t cursor) {
+            // literal should not start with '%'
+            assert(!lookahead(cursor, token_str::token_prefix));
+
+            std::size_t start = cursor;
+            while (cursor < LEN && !lookahead(cursor, token_str::token_prefix)) {
+                ++cursor;
+            }
+
+            next_token() = { token_type::literal, start, cursor };
+            return cursor;
         }
 
-        consteval void add_message() {
-            next_token() = { token_type::message };
+        consteval std::size_t add_message(std::size_t cursor) {
+            next_token() = { token_type::message, cursor, cursor + token_size(token_str::message)};
+            return cursor + token_size(token_str::message);
         }
 
-        consteval void add_thread_id() {
-            next_token() = { token_type::thread_id };
+        consteval std::size_t add_thread_id(std::size_t cursor) {
+            next_token() = { token_type::thread_id, cursor, cursor + token_size(token_str::thread_id)};
+            return cursor + token_size(token_str::thread_id);
         }
 
-        consteval void add_logger_name() {
-            next_token() = { token_type::logger_name };
+        consteval std::size_t add_logger_name(std::size_t cursor) {
+            next_token() = { token_type::logger_name, cursor, cursor + token_size(token_str::logger_name)};
+            return cursor + token_size(token_str::logger_name);
         }
 
-        consteval void add_level_lower() {
-            next_token() = { token_type::level_lower };
+        consteval std::size_t add_level_lower(std::size_t cursor) {
+            next_token() = { token_type::level_lower, cursor, cursor + token_size(token_str::level_lower)};
+            return cursor + token_size(token_str::level_lower);
         }
 
-        consteval void add_level_upper() {
-            next_token() = { token_type::level_upper };
+        consteval std::size_t add_level_upper(std::size_t cursor) {
+            next_token() = { token_type::level_upper, cursor, cursor + token_size(token_str::level_upper)};
+            return cursor + token_size(token_str::level_upper);
         }
     public:
         inline static constexpr std::size_t LEN = N - 1;
