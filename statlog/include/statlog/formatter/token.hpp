@@ -13,6 +13,9 @@ namespace statlog {
         logger_name,        // %n
         level_lower,        // %l
         level_upper,        // %L
+        level_color_start,  // %^
+        level_color_end,    // %$
+        percent_sign,       // %%
         dummy
     };
     using token_type = token_type_t;
@@ -24,6 +27,9 @@ namespace statlog {
         constexpr const char logger_name[] = "%n";
         constexpr const char level_lower[] = "%l";
         constexpr const char level_upper[] = "%L";
+        constexpr const char level_color_start[] = "%^";
+        constexpr const char level_color_end[] = "%$";
+        constexpr const char percent_sign[] = "%%";
     }
 
     struct token_t {

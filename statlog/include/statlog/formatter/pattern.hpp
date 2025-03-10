@@ -25,7 +25,7 @@ namespace statlog {
             return _tokens[i];
         }
 
-        constexpr const char* cstr() const {
+        consteval const char* cstr() const {
             return _str.data();
         }
 
@@ -47,6 +47,15 @@ namespace statlog {
                 }
                 else if (lookahead(cursor, token_str::level_upper)) {
                     cursor = add_level_upper(cursor);
+                }
+                else if (lookahead(cursor, token_str::level_color_start)) {
+                    cursor = add_level_color_start(cursor);
+                }
+                else if (lookahead(cursor, token_str::level_color_end)) {
+                    cursor = add_level_color_end(cursor);
+                }
+                else if (lookahead(cursor, token_str::percent_sign)) {
+                    cursor = add_percent_sign(cursor);
                 }
                 else {
                     cursor = add_literal(cursor);
@@ -109,6 +118,21 @@ namespace statlog {
         consteval std::size_t add_level_upper(std::size_t cursor) {
             next_token() = { token_type::level_upper, cursor, cursor + token_size(token_str::level_upper)};
             return cursor + token_size(token_str::level_upper);
+        }
+
+        consteval std::size_t add_level_color_start(std::size_t cursor) {
+            next_token() = { token_type::level_color_start, cursor, cursor + token_size(token_str::level_color_start) };
+            return cursor + token_size(token_str::level_color_start);
+        }
+
+        consteval std::size_t add_level_color_end(std::size_t cursor) {
+            next_token() = { token_type::level_color_end, cursor, cursor + token_size(token_str::level_color_end) };
+            return cursor + token_size(token_str::level_color_end);
+        }
+
+        consteval std::size_t add_percent_sign(std::size_t cursor) {
+            next_token() = { token_type::percent_sign, cursor, cursor + token_size(token_str::percent_sign) };
+            return cursor + token_size(token_str::percent_sign);
         }
     public:
         inline static constexpr std::size_t LEN = N - 1;

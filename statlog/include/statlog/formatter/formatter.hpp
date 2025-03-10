@@ -44,10 +44,19 @@ namespace statlog {
                 buffer.append(msg.logger_name);
             }
             else if constexpr (T.type == token_type::level_lower) {
-                buffer.append(to_string_lower(msg.level));
+                buffer.append(level_to_string_lower(msg.level));
             }
             else if constexpr (T.type == token_type::level_upper) {
-                buffer.append(to_string_upper(msg.level));
+                buffer.append(level_to_string_upper(msg.level));
+            }
+            else if constexpr (T.type == token_type::level_color_start) {
+                buffer.append(level_to_color(msg.level));
+            }
+            else if constexpr (T.type == token_type::level_color_end) {
+                buffer.append(level_color::reset);
+            }
+            else if constexpr (T.type == token_type::percent_sign) {
+                buffer += '%';
             }
             else {
                 std::unreachable();

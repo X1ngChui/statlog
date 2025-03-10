@@ -7,15 +7,20 @@
 #include <cstdio>
 
 TEST_CASE("exclusive sinks") {
-    constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+    constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
     statlog::file_sink_mt<pattern> file_sink("file.log");
-    statlog::stdout_sink_mt<pattern> stdout_sink;
+    statlog::stdout_sink_mt<pattern> stdout_sink(statlog::level::trace);
 
     statlog::sync_logger logger{ "file", std::move(file_sink), std::move(stdout_sink)};
     
     std::thread t1([&logger] {
         for (int i = 0; i < 1000; ++i) {
+            logger.trace("Hello from thread 1");
+            logger.debug("Hello from thread 1");
             logger.info("Hello from thread 1");
+            logger.warn("Hello from thread 1");
+            logger.error("Hello from thread 1");
+            logger.fatal("Hello from thread 1");
         }
     });
     std::thread t2([&logger] {
