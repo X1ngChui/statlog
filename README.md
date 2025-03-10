@@ -67,7 +67,7 @@ Current supported format specifiers:
 | `%L`      | Log level in uppercase  |
 | `%^`      | Log level color start   |
 | `%$`      | Log level color end     |
-| `%%`      | Literal `%` character   |`
+| `%%`      | Literal `%` character   |
 
 
 More specifiers coming soon! Welcome for contribution!
