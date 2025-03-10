@@ -30,7 +30,7 @@ git clone https://github.com/X1ngChui/statlog.git --recursive
 ### Exclusive Sinks (1 Logger → Multiple Sinks)
 
 ```cpp
-constexpr statlog::pattern_t pattern("[%L][%t][%n] %v");
+constexpr statlog::pattern pattern("[%L][%t][%n] %v");
 statlog::file_sink_mt<pattern> file_sink("app.log");
 statlog::stdout_sink_mt<pattern> console_sink{statlog::level::info};
 
@@ -43,7 +43,7 @@ logger.warn("Low memory: {}MB free", 512);
 ### Shared Sinks (Multiple Loggers → 1 Sink)
 
 ```cpp
-constexpr statlog::pattern_t debug_pattern("[%D %T][%n] %v");
+constexpr statlog::pattern debug_pattern("[%D %T][%n] %v");
 statlog::file_sink_st<debug_pattern> shared_sink("debug.log");
 
 statlog::sync_logger<decltype(shared_sink)&> net_logger{"network", shared_sink};
