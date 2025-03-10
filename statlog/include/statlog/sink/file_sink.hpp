@@ -11,10 +11,8 @@ namespace statlog {
     template <typename M, pattern P>
     class basic_file_sink_t : public sink<basic_file_sink_t<M, P>, M, P> {
     public:
-        basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app, level l = level::info)
-            : sink<basic_file_sink_t, M, P>(l) 
-        {
-            _os = std::ofstream(path, mode);
+        basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app)
+            : _os(path, mode) {
         }
 
         basic_file_sink_t(const basic_file_sink_t&) = delete;
