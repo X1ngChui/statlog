@@ -15,7 +15,6 @@ if (NOT DEFINED STATLOG_MAIN_PROJECT)
 endif()
 
 add_subdirectory("statlog")
-
 if (STATLOG_BUILD_TESTS)
     add_subdirectory("tests")
 endif()

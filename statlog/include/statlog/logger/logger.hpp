@@ -8,8 +8,17 @@
 #include <format>
 #include <utility>
 #include <thread>
+#include <type_traits>
 
 namespace statlog {
+    template <typename... Sinks>
+    using sink_list = std::tuple<Sinks...>;
+
+    template <typename... Sinks>
+    auto make_sink_list(Sinks&&... sinks) {
+        return sink_list<Sinks...>(std::forward<Sinks>(sinks)...);
+    }
+
     template <typename L>
     class logger_t {
     public:

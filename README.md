@@ -21,7 +21,7 @@
 ### Installation
 
 ```bash
-git clone https://github.com/X1ngChui/statlog.git --recursive 
+git clone --recursive https://github.com/X1ngChui/statlog.git
 # Build using your preferred C++ build system
 ```
 
@@ -31,11 +31,15 @@ git clone https://github.com/X1ngChui/statlog.git --recursive
 
 ```cpp
 constexpr statlog::pattern common_pattern("[%L][%t][%n] %v");
-statlog::file_sink_mt<pattern> file_sink("app.log");
 constexpr statlog::pattern colorful_pattern("%^[%L][%t][%n] %v%$");
+
+statlog::file_sink_mt<pattern> file_sink("app.log");
 statlog::stdout_sink_mt<colorful_pattern> console_sink{};
 
-statlog::sync_logger logger{"main", statlog::level::info, std::move(file_sink), std::move(console_sink)};
+statlog::async_logger logger{"main", 
+	statlog::make_sink_list(std::move(file_sink), std::move(console_sink)),
+	statlog::level::info, 4
+};
 
 logger.info("System initialized");
 logger.warn("Low memory: {}MB free", 512);
@@ -47,8 +51,8 @@ logger.warn("Low memory: {}MB free", 512);
 constexpr statlog::pattern pattern("[%L][%t][%n] %v");
 statlog::file_sink_st<pattern> shared_sink("debug.log");
 
-statlog::sync_logger<decltype(shared_sink)&> net_logger{"network", statlog::level::info, shared_sink};
-statlog::sync_logger<decltype(shared_sink)&> db_logger{"database", statlog::level::info, shared_sink};
+statlog::sync_logger net_logger{"network", statlog::make_sink_list(shared_sink)};
+statlog::sync_logger db_logger{"database", statlog::make_sink_list(shared_sink)};
 
 net_logger.debug("Packet received: {} bytes", 1500);
 db_logger.info("Connection pool: {} active", 8);
@@ -95,7 +99,6 @@ We welcome contributions! Current development priorities:
 
 - **New format specifiers**: Add function names (`%F`), source locations (`%@`), and custom timestamp formats.
 - **Sink improvements**: Focus on efficiency through raw syscalls, add new sink types like UDP/network and circular buffers.
-- **Logger enhancements**: Introduce asynchronous logging for better performance in high-throughput scenarios.
 
 Please see our [Contribution Guidelines](CONTRIBUTING.md) for details.
 
