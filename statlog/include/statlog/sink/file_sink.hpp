@@ -4,15 +4,14 @@
 #define STATLOG_SINK_FILE_SINK_INCLUDED
 
 #include <statlog/sink/sink.hpp>
-
-#include <filesystem>
+#include <statlog/platform/file.hpp>
 
 namespace statlog {
     template <typename M, pattern P>
     class basic_file_sink_t : public sink<basic_file_sink_t<M, P>, M, P> {
     public:
         basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app)
-            : _os(path, mode) {
+            : _file(path, mode) {
         }
 
         basic_file_sink_t(const basic_file_sink_t&) = delete;
@@ -25,14 +24,35 @@ namespace statlog {
         }
 
         void _sink(const std::string& message) {
-            _os << message;
+            const char* data = message.data();
+            std::size_t size = message.size();
+
+            while (size > 0) {
+                const std::size_t available = _buffer.capacity() - _buffer.size();
+                const std::size_t chunk = std::min(size, available);
+
+                if (chunk > 0) [[likely]] {
+                    _buffer.insert(_buffer.end(), data, data + chunk);
+                    data += chunk;
+                    size -= chunk;
+                }
+
+                if (_buffer.size() >= _buffer.capacity()) {
+                    _flush();
+                }
+            }
         }
 
         void _flush() {
-            _os.flush();
+            if (_buffer.size() > 0) [[likely]] {
+                _file.write(_buffer.data(), _buffer.size());
+                _buffer.clear();
+            }
         }
     private:
-        std::ofstream _os;
+        inline static constexpr std::size_t BUFFER_SIZE = 8192;
+        file _file;
+        inline_vector<char, BUFFER_SIZE> _buffer{};
     };
     
     template <typename M, pattern P>

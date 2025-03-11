@@ -4,10 +4,14 @@
 #define STATLOG_SINK_STDOUT_SINK_INCLUDED
 
 #include <statlog/sink/sink.hpp>
+#include <statlog/platform/stdout.hpp>
+#include <statlog/utility/inline_vector.hpp>
+#include <array>
+#include <mutex>
 
 namespace statlog {
-    template <typename M, pattern P>
-    class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P>, M, P> {
+    template <typename M, pattern P, bool Colorful>
+    class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P, Colorful>, M, P> {
     public:
         basic_stdout_sink_t() = default;
         basic_stdout_sink_t(const basic_stdout_sink_t&) = delete;
@@ -17,29 +21,58 @@ namespace statlog {
         ~basic_stdout_sink_t() { _flush(); }
 
         void _sink(const std::string& message) {
-            std::fwrite(message.data(), sizeof(char), message.size(), stdout);
+            const char* data = message.data();
+            std::size_t size = message.size();
+
+            while (size > 0) {
+                const std::size_t available = _buffer.capacity() - _buffer.size();
+                const std::size_t chunk = std::min(size, available);
+
+                if (chunk > 0) [[likely]] {
+                    _buffer.insert(_buffer.end(), data, data + chunk);
+                    data += chunk;
+                    size -= chunk;
+                }
+
+                if (_buffer.size() >= _buffer.capacity()) {
+                    _flush();
+                }
+            }
         }
 
         void _flush() {
-            std::fflush(stdout);
+            if (_buffer.size() > 0) [[likely]] {
+                _stdout.write(_buffer.data(), _buffer.size());
+                _buffer.clear();
+            }
         }
+
+    private:
+        inline static constexpr std::size_t BUFFER_SIZE = 8192;
+        stdout_t<Colorful> _stdout;
+        inline_vector<char, BUFFER_SIZE> _buffer{};
     };
-    template <typename M, pattern P>
-    using basic_stdout_sink = basic_stdout_sink_t<M, P>;
 
     class stdout_mutex_t {
     public:
-        void lock() { _mutex.lock(); }
-        void unlock() { _mutex.unlock(); }
+        void lock() { mutex_.lock(); }
+        void unlock() { mutex_.unlock(); }
     private:
-        inline static std::mutex _mutex{};
+        inline static std::mutex mutex_{};
     };
     using stdout_mutex = stdout_mutex_t;
 
     template <pattern P>
-    using stdout_sink_st = basic_stdout_sink<null_mutex, P>;
+    using stdout_sink_st = basic_stdout_sink_t<null_mutex, P, false>;
 
     template <pattern P>
-    using stdout_sink_mt = basic_stdout_sink<stdout_mutex, P>;
+    using stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, P, false>;
+
+    template <pattern P>
+    using colorful_stdout_sink_st = basic_stdout_sink_t<null_mutex, P, true>;
+
+    template <pattern P>
+    using colorful_stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, P, true>;
 }
+
 #endif
