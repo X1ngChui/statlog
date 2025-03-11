@@ -9,22 +9,19 @@
 TEST_CASE("exclusive sinks") {
     constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
     statlog::file_sink_mt<pattern> file_sink("file.log");
-    statlog::stdout_sink_mt<pattern> stdout_sink{};
+    statlog::colorful_stdout_sink_mt<pattern> stdout_sink{};
 
     statlog::async_logger logger{ "file", statlog::make_sink_list(std::move(file_sink), std::move(stdout_sink))};
     
+    
     std::thread t1([&logger] {
-        for (int i = 0; i < 1000; ++i) {
-            logger.trace("Hello from thread 1");
-            logger.debug("Hello from thread 1");
+        for (int i = 0; i < 100000; ++i) {
             logger.info("Hello from thread 1");
             logger.warn("Hello from thread 1");
-            logger.error("Hello from thread 1");
-            logger.fatal("Hello from thread 1");
         }
     });
     std::thread t2([&logger] {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             logger.info("Hello from thread 2");
         }
     });
