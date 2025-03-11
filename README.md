@@ -99,9 +99,7 @@ More specifiers coming soon! Welcome for contribution!
 We welcome contributions! Current development priorities:
 
 - **New format specifiers**: Add function names (`%F`), source locations (`%@`), and custom timestamp formats.
-- **Sink improvements**: Focus on efficiency through raw syscalls, add new sink types like UDP/network and circular buffers.
-
-Please see our [Contribution Guidelines](CONTRIBUTING.md) for details.
+- **Sink improvements**: Focus on efficiency and diversity, add new sink types like UDP/network.
 
 ## License
 
