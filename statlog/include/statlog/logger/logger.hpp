@@ -8,12 +8,21 @@
 #include <format>
 #include <utility>
 #include <thread>
+#include <type_traits>
 
 namespace statlog {
+    template <typename... Sinks>
+    using sink_list = std::tuple<Sinks...>;
+
+    template <typename... Sinks>
+    auto make_sink_list(Sinks&&... sinks) {
+        return sink_list<Sinks...>(std::forward<Sinks>(sinks)...);
+    }
+
     template <typename L>
     class logger_t {
     public:
-        explicit logger_t(std::string_view name) : _name(name) {}
+        explicit logger_t(std::string_view name, level level) : _name(name), _level(level) {}
 
         template <typename T>
         void trace(T&& message) {
@@ -78,8 +87,27 @@ namespace statlog {
         const std::string& name() const noexcept {
             return _name;
         }
+
+        level level() const noexcept {
+            return _level;
+        }
+
+        void set_level(statlog::level l) noexcept {
+            _level = l;
+        }
+
+    protected:
+        inline bool should_log(statlog::level l) const noexcept {
+            return l >= _level;
+        }
+
+        inline bool should_flush(statlog::level l) noexcept {
+            return l >= level::warn;
+        }
+
     private:
         std::string _name;
+        statlog::level _level = level::info;
     };
 
     template <typename L>

@@ -41,8 +41,6 @@ namespace statlog {
     template <typename S, typename M, pattern P>
     class sink_t {
     public:
-        constexpr sink_t(level l) noexcept : _level(l) {}
-
         void sink(const logger_message& msg) {
             std::lock_guard<M> lock(_mutex);
             static_cast<S*>(this)->_sink(_formatter::format(msg));
@@ -52,23 +50,9 @@ namespace statlog {
             std::lock_guard<M> lock(_mutex);
             static_cast<S*>(this)->_flush();
         }
-
-        void set_level(level l) {
-            std::lock_guard<M> lock(_mutex);
-            _level = l;
-        }
-
-        constexpr bool should_sink(level l) const noexcept {
-            return l >= _level;
-        }
-
-        static constexpr bool should_flush(level l) noexcept {
-            return l >= level::warn;
-        }
     private:
         using _formatter = formatter<P>;
         M _mutex;
-        level _level = level::info;
     };
 
     template <typename S, typename M, pattern P>

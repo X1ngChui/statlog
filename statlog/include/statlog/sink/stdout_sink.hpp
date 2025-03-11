@@ -9,7 +9,11 @@ namespace statlog {
     template <typename M, pattern P>
     class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P>, M, P> {
     public:
-        basic_stdout_sink_t(level l = level::info) : sink<basic_stdout_sink_t, M, P>(l) {}
+        basic_stdout_sink_t() = default;
+        basic_stdout_sink_t(const basic_stdout_sink_t&) = delete;
+        basic_stdout_sink_t& operator=(const basic_stdout_sink_t&) = delete;
+        basic_stdout_sink_t(basic_stdout_sink_t&&) = default;
+        basic_stdout_sink_t& operator=(basic_stdout_sink_t&&) = default;
         ~basic_stdout_sink_t() { _flush(); }
 
         void _sink(const std::string& message) {

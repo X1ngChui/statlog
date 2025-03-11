@@ -14,6 +14,7 @@ namespace statlog {
     public:
         consteval pattern_t(const char(&input)[N]) {
             std::copy_n(input, N, _str.begin());
+            _str[N - 1] = '\n'; // replace null terminator with newline
             parse();
         }
 
@@ -31,8 +32,7 @@ namespace statlog {
 
     private:
         consteval void parse() {
-            // ignore null terminator
-            for (std::size_t cursor = 0; cursor < LEN;) {
+            for (std::size_t cursor = 0; cursor < N;) {
                 if (lookahead(cursor, token_str::message)) {
                     cursor = add_message(cursor);
                 }
@@ -63,6 +63,13 @@ namespace statlog {
             }
         }
 
+        consteval void remove_token(std::size_t index) {
+            for (std::size_t i = index; i < size() - 1; i++) {
+                _tokens[i] = _tokens[i + 1];
+            }
+            _tokens[--_ntokens] = { token_type::dummy };
+        }
+
         template <std::size_t M>
         consteval bool lookahead(std::size_t from, const char(&target)[M]) const {
             for (std::size_t i = 0; i < M - 1; ++i) {   // ignore null terminator
@@ -87,7 +94,7 @@ namespace statlog {
             assert(!lookahead(cursor, token_str::token_prefix));
 
             std::size_t start = cursor;
-            while (cursor < LEN && !lookahead(cursor, token_str::token_prefix)) {
+            while (cursor < N && !lookahead(cursor, token_str::token_prefix)) {
                 ++cursor;
             }
 
@@ -135,11 +142,9 @@ namespace statlog {
             return cursor + token_size(token_str::percent_sign);
         }
     public:
-        inline static constexpr std::size_t LEN = N - 1;
-
         // Due to the C++20 standard, the following member variables must be public.
         std::array<char, N> _str{};
-        std::array<token, 2 * N / 3> _tokens{};
+        std::array<token, 2 * N / 3 + 1> _tokens{};
         std::size_t _ntokens = 0;
     };
     template <size_t N>

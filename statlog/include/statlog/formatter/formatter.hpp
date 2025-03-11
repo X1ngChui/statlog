@@ -24,7 +24,6 @@ namespace statlog {
                 (format_token<P[I]>(result, msg), ...);
             }(std::make_index_sequence<P.size()>{});
 
-            result += '\n';
             return result;
         }
 
