@@ -10,6 +10,7 @@
 - **Thread-safe sinks** - Both multi-thread and single-thread sink implementations
 - **Low overhead** - Minimal runtime cost through template metaprogramming
 - **Synchronous logging** - Predictable logging behavior for system programming
+- **Asynchronous logging** - High performace logging that don't block the main thread
 - **Flexible sink architecture** - Multiple logger-sink configurations supported
 
 ## Getting Started
