@@ -28,24 +28,25 @@ namespace statlog {
             std::size_t size = message.size();
 
             while (size > 0) {
-                const std::size_t available = _buffer.capacity() - _buffer.size();
-                const std::size_t chunk = std::min(size, available);
-
-                if (chunk > 0) [[likely]] {
-                    _buffer.insert(_buffer.end(), data, data + chunk);
-                    data += chunk;
-                    size -= chunk;
-                }
-
                 if (_buffer.size() >= _buffer.capacity()) {
                     _flush();
                 }
+
+                const std::size_t available = _buffer.capacity() - _buffer.size(); 
+                assert(available > 0);
+                const std::size_t chunk = std::min(size, available);
+                assert(chunk > 0);
+
+                _buffer.insert(_buffer.end(), data, data + chunk);
+                data += chunk;
+                size -= chunk;
             }
         }
 
         void _flush() {
-            if (_buffer.size() > 0) [[likely]] {
+            if (_buffer.size() > 0) {
                 _file.write(_buffer.data(), _buffer.size());
+                _file.flush();
                 _buffer.clear();
             }
         }

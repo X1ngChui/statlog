@@ -134,6 +134,18 @@ namespace statlog {
 #endif
         }
 
+        void flush() {
+#ifdef _WIN32
+            if (!FlushFileBuffers(_handle)) {
+                throw std::runtime_error("Failed to flush file buffers");
+            }
+#else
+            if (::fsync(_fd) == -1) {
+                throw std::runtime_error("Failed to flush file buffers");
+            }
+#endif
+        }
+
     private:
 #ifdef _WIN32
         HANDLE _handle = INVALID_HANDLE_VALUE;
