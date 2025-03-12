@@ -10,8 +10,8 @@
 #include <mutex>
 
 namespace statlog {
-    template <typename M, pattern P, bool Colorful>
-    class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P, Colorful>, M, P> {
+    template <typename M, bool Colorful>
+    class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, Colorful>, M> {
     public:
         basic_stdout_sink_t(std::size_t buffer_size = 8 * 1024) : _buffer(buffer_size) {}
         basic_stdout_sink_t(const basic_stdout_sink_t&) = delete;
@@ -63,17 +63,10 @@ namespace statlog {
     };
     using stdout_mutex = stdout_mutex_t;
 
-    template <pattern P>
-    using stdout_sink_st = basic_stdout_sink_t<null_mutex, P, false>;
-
-    template <pattern P>
-    using stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, P, false>;
-
-    template <pattern P>
-    using colorful_stdout_sink_st = basic_stdout_sink_t<null_mutex, P, true>;
-
-    template <pattern P>
-    using colorful_stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, P, true>;
+    using stdout_sink_st = basic_stdout_sink_t<null_mutex, false>;
+    using stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, false>;
+    using colorful_stdout_sink_st = basic_stdout_sink_t<null_mutex, true>;
+    using colorful_stdout_sink_mt = basic_stdout_sink_t<stdout_mutex, true>;
 }
 
 #endif

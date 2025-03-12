@@ -93,5 +93,13 @@ namespace statlog {
         }
         return level_color::reset;
     }
+
+    struct logger_info_t {
+        level level;
+        std::thread::id thread_id;
+        const std::string& logger_name;
+        const std::string& message;
+    };
+    using logger_info = logger_info_t;
 }
 #endif

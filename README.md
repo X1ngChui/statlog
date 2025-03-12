@@ -31,16 +31,14 @@ git clone --recursive https://github.com/X1ngChui/statlog.git
 ### Exclusive Sinks (1 Logger → Multiple Sinks)
 
 ```cpp
-constexpr statlog::pattern common_pattern("[%L][%t][%n] %v");
-constexpr statlog::pattern colorful_pattern("%^[%L][%t][%n] %v%$");
+statlog::file_sink_mt file_sink("app.log");
+statlog::stdout_sink_mt console_sink{};
 
-statlog::file_sink_mt<pattern> file_sink("app.log");
-statlog::stdout_sink_mt<colorful_pattern> console_sink{};
-
-statlog::async_logger logger{"main", 
+constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+auto logger = statlog::make_async_logger<pattern>("main", 
 	statlog::make_sink_list(std::move(file_sink), std::move(console_sink)),
 	statlog::level::info, 4
-};
+);
 
 logger.info("System initialized");
 logger.warn("Low memory: {}MB free", 512);
@@ -49,11 +47,11 @@ logger.warn("Low memory: {}MB free", 512);
 ### Shared Sinks (Multiple Loggers → 1 Sink)
 
 ```cpp
-constexpr statlog::pattern pattern("[%L][%t][%n] %v");
-statlog::file_sink_st<pattern> shared_sink("debug.log");
+statlog::file_sink_st shared_sink("debug.log");
 
-statlog::sync_logger net_logger{"network", statlog::make_sink_list(shared_sink)};
-statlog::sync_logger db_logger{"database", statlog::make_sink_list(shared_sink)};
+constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+auto net_logger = statlog::make_sync_logger("network", statlog::make_sink_list(shared_sink));
+auto db_logger = statlog::make_sync_logger("database", statlog::make_sink_list(shared_sink));
 
 net_logger.debug("Packet received: {} bytes", 1500);
 db_logger.info("Connection pool: {} active", 8);

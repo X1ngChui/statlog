@@ -8,8 +8,8 @@
 #include <statlog/utility/buffer.hpp>
 
 namespace statlog {
-    template <typename M, pattern P>
-    class basic_file_sink_t : public sink<basic_file_sink_t<M, P>, M, P> {
+    template <typename M>
+    class basic_file_sink_t : public sink<basic_file_sink_t<M>, M> {
     public:
         basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app, std::size_t buffer_size = 32 * 1024)
             : _file(path, mode), _buffer(buffer_size) {
@@ -56,12 +56,10 @@ namespace statlog {
         buffer<char> _buffer;
     };
     
-    template <typename M, pattern P>
-    using basic_file_sink = basic_file_sink_t<M, P>;
+    template <typename M>
+    using basic_file_sink = basic_file_sink_t<M>;
 
-    template <pattern P>
-    using file_sink_st = basic_file_sink<null_mutex, P>;
-    template <pattern P>
-    using file_sink_mt = basic_file_sink<mutex, P>;
+    using file_sink_st = basic_file_sink<null_mutex>;
+    using file_sink_mt = basic_file_sink<mutex>;
 }
 #endif

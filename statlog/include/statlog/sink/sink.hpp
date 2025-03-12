@@ -5,8 +5,6 @@
 
 #include <statlog/logger/level.hpp>
 #include <statlog/logger/logger.hpp>
-#include <statlog/formatter/pattern.hpp>
-#include <statlog/formatter/formatter.hpp>
 
 #include <mutex>
 #include <format>
@@ -38,17 +36,17 @@ namespace statlog {
     using mutex = mutex_t;
     static_assert(std::is_move_constructible_v<mutex>);
 
-    template <typename S, typename M, pattern P>
+    template <typename S, typename M>
     class sink_t {
     public:
-        void sink(std::shared_ptr<const logger_message> msg) {
+        void sink(std::shared_ptr<std::string> msg) {
             std::lock_guard<M> lock(_mutex);
-            static_cast<S*>(this)->_sink(_formatter::format(msg));
+            static_cast<S*>(this)->_sink(*msg);
         }
 
-        void sink(const logger_message& msg) {
+        void sink(const std::string& msg) {
             std::lock_guard<M> lock(_mutex);
-            static_cast<S*>(this)->_sink(_formatter::format(msg));
+            static_cast<S*>(this)->_sink(msg);
         }
 
         void flush() {
@@ -56,11 +54,10 @@ namespace statlog {
             static_cast<S*>(this)->_flush();
         }
     private:
-        using _formatter = formatter<P>;
         M _mutex;
     };
 
-    template <typename S, typename M, pattern P>
-    using sink = sink_t<S, M, P>;
+    template <typename S, typename M>
+    using sink = sink_t<S, M>;
 }
 #endif
