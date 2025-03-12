@@ -22,7 +22,7 @@ namespace statlog {
     template <typename L>
     class logger_t {
     public:
-        explicit logger_t(std::string_view name, level level) : _name(name), _level(level) {}
+        explicit logger_t(std::string_view name, level_t log_level, level_t flush_level) : _name(name), _log_level(log_level), _flush_level(flush_level) {}
 
         template <typename T>
         void trace(T&& message) {
@@ -88,26 +88,35 @@ namespace statlog {
             return _name;
         }
 
-        level level() const noexcept {
-            return _level;
+        level_t level() const noexcept {
+            return _log_level;
         }
 
-        void set_level(statlog::level l) noexcept {
-            _level = l;
+        level_t flush_level() const noexcept {
+            return _flush_level;
+        }
+
+        void set_level(level_t l) noexcept {
+            _log_level = l;
+        }
+
+        void flush_on(level_t l) noexcept {
+            _flush_level = l;
         }
 
     protected:
         inline bool should_log(statlog::level l) const noexcept {
-            return l >= _level;
+            return l >= _log_level;
         }
 
         inline bool should_flush(statlog::level l) noexcept {
-            return l >= level::warn;
+            return l >= _flush_level;
         }
 
     private:
         std::string _name;
-        statlog::level _level = level::info;
+        level_t _log_level = level::info;
+        level_t _flush_level = level::warn;
     };
 
     template <typename L>

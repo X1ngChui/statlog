@@ -43,7 +43,7 @@ namespace statlog {
     public:
         void sink(std::shared_ptr<const logger_message> msg) {
             std::lock_guard<M> lock(_mutex);
-            static_cast<S*>(this)->_sink(_formatter::format(msg));
+            static_cast<S*>(this)->_sink(_formatter::format(*msg));
         }
 
         void sink(const logger_message& msg) {

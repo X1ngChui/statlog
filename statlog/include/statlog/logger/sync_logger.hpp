@@ -15,7 +15,7 @@ namespace statlog {
     template <typename... Sinks>
     class sync_logger_t : public logger<sync_logger_t<Sinks...>> {
     public:
-        explicit sync_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level level = level::info) : logger<sync_logger_t>(name, level), _sinks(std::move(sinks)) {}
+        explicit sync_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level log_level = level::info, level flush_level = level::warn) : logger<sync_logger_t>(name, log_level, flush_level), _sinks(std::move(sinks)) {}
 
         template <typename... Args>
         void log(level l, std::format_string<Args...> fmt, Args&&... args) {  

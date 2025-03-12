@@ -14,7 +14,9 @@ namespace statlog {
     public:
         consteval pattern_t(const char(&input)[N]) {
             std::copy_n(input, N, _str.begin());
-            _str[N - 1] = '\n'; // replace null terminator with newline
+            // Replace null terminator with newline
+            // So the actual length of the string is N
+            _str[N - 1] = '\n'; 
             parse();
         }
 

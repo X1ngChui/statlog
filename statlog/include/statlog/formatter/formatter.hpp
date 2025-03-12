@@ -17,17 +17,6 @@ namespace statlog {
     template <pattern P>
     class formatter_t {
     public:
-        static constexpr std::string format(std::shared_ptr<const logger_message> msg) {
-            std::string result;
-            result.reserve(SMALL_MESSAGE_SIZE);
-
-            [&]<std::size_t... I>(std::index_sequence<I...>) {
-                (format_token<P[I]>(result, *msg), ...);
-            }(std::make_index_sequence<P.size()>{});
-
-            return result;
-        }
-
         static constexpr std::string format(const logger_message& msg) {
             std::string result;
             result.reserve(SMALL_MESSAGE_SIZE);

@@ -7,7 +7,7 @@
 #include <cstdio>
 
 TEST_CASE("exclusive sinks") {
-    constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
+    static constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
     statlog::file_sink_mt<pattern> file_sink("file.log");
     statlog::colorful_stdout_sink_mt<pattern> stdout_sink{};
 
@@ -31,7 +31,7 @@ TEST_CASE("exclusive sinks") {
 }
 
 TEST_CASE("shared sinks") {
-    constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+    static constexpr statlog::pattern pattern("[%L][%t][%n] %v");
     statlog::file_sink_st<pattern> file_sink("shared_file.log");
     statlog::sync_logger logger1{ "logger_one", statlog::make_sink_list(file_sink)};
     statlog::sync_logger logger2{ "logger_two", statlog::make_sink_list(file_sink)};
