@@ -19,22 +19,24 @@ namespace statlog {
 
         template <typename... Args>
         void log(level l, std::format_string<Args...> fmt, Args&&... args) {  
-            std::apply([&](auto&&... sinks) {
-                (log_it(sinks, l, fmt, std::forward<Args>(args)...), ...);
-            }, _sinks);
-        }
-    private:
-        template <typename S, typename... Args>
-        void log_it(S&& sink, level l, std::format_string<Args...> fmt, Args&&... args)
-        {
-            if (this->should_log(l)) {
-                sink.sink(logger_message{
+            logger_message msg{
                     .level = l,
                     .thread_id = std::this_thread::get_id(),
                     .logger_name = this->name(),
                     .message = std::format(fmt, std::forward<Args>(args)...)
-                    });
-                if (this->should_flush(l)) {
+            };
+
+            std::apply([&](auto&&... sinks) {
+                (log_it(sinks, msg), ...);
+            }, _sinks);
+        }
+    private:
+        template <typename S, typename... Args>
+        void log_it(S&& sink, const logger_message& msg)
+        {
+            if (this->should_log(msg.level)) {
+                sink.sink(msg);
+                if (this->should_flush(msg.level)) {
                     sink.flush();
                 }
             }

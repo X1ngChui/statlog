@@ -17,7 +17,7 @@ TEST_CASE("exclusive sinks") {
     std::thread t1([&logger] {
         for (int i = 0; i < 100000; ++i) {
             logger.info("Hello from thread 1");
-            logger.warn("Hello from thread 1");
+            logger.trace("Hello from thread 1");
         }
     });
     std::thread t2([&logger] {

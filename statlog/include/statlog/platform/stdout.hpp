@@ -32,11 +32,18 @@ namespace statlog {
         void write(const char* data, size_t size) {
 #ifdef _WIN32
             DWORD written;
-            WriteFile(_handle, data, static_cast<DWORD>(size), &written, nullptr);
+            BOOL success = WriteFile(_handle, data, static_cast<DWORD>(size), &written, nullptr);
+            if (!success || written != static_cast<DWORD>(size)) {
+                throw std::runtime_error("Failed to write to stdout");
+            }
 #else
-            ::write(_fd, data, size);
+            ssize_t result = ::write(_fd, data, size);
+            if (result == -1 || static_cast<size_t>(result) != size) {
+                throw std::runtime_error("Failed to write to file");
+            }
 #endif
         }
+
     private:
 #ifdef _WIN32
         HANDLE _handle = INVALID_HANDLE_VALUE;
