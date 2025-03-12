@@ -17,26 +17,29 @@ namespace statlog {
 
         template <typename... Args>
         void log(level l, std::format_string<Args...> fmt, Args&&... args) {
+            auto pmessage = std::make_shared<logger_message>(
+                logger_message{
+                    .level = l,
+                    .thread_id = std::this_thread::get_id(),
+                    .logger_name = this->name(),
+                    .message = std::format(fmt, std::forward<Args>(args)...)
+                }
+            );
             std::apply([&](auto&&... sinks) {
-                (log_it(sinks, l, fmt, std::forward<Args>(args)...), ...);
+                (log_it(sinks, pmessage), ...);
                 }, _sinks);
         }
     private:
         template <typename S, typename... Args>
-        void log_it(S&& sink, level l, std::format_string<Args...> fmt, Args&&... args) 
+        void log_it(S&& sink, std::shared_ptr<const logger_message> msg) 
         {
-            if (this->should_log(l)) {
-                _pool.enqueue([&](const logger_message& msg) {
-                    sink.sink(msg);
-                    if (this->should_flush(msg.level)) {
+            if (this->should_log(msg->level)) {
+                _pool.enqueue([&](std::shared_ptr<const logger_message> message) {
+                    sink.sink(message);
+                    if (this->should_flush(message->level)) {
                         sink.flush();
                     }
-                }, logger_message{
-                        .level = l,
-                        .thread_id = std::this_thread::get_id(),
-                        .logger_name = this->name(),
-                        .message = std::format(fmt, std::forward<Args>(args)...)
-                    }
+                }, std::move(msg)
                 );
             }
         }

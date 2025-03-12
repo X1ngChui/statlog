@@ -41,6 +41,11 @@ namespace statlog {
     template <typename S, typename M, pattern P>
     class sink_t {
     public:
+        void sink(std::shared_ptr<const logger_message> msg) {
+            std::lock_guard<M> lock(_mutex);
+            static_cast<S*>(this)->_sink(_formatter::format(msg));
+        }
+
         void sink(const logger_message& msg) {
             std::lock_guard<M> lock(_mutex);
             static_cast<S*>(this)->_sink(_formatter::format(msg));
