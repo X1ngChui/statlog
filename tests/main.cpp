@@ -8,11 +8,10 @@
 
 TEST_CASE("exclusive sinks") {
     static constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
-    statlog::file_sink_mt<pattern> file_sink("file.log");
-    statlog::colorful_stdout_sink_mt<pattern> stdout_sink{};
+    statlog::file_sink_mt file_sink("file.log");
+    statlog::colorful_stdout_sink_mt stdout_sink{};
 
-    statlog::async_logger logger{ "file", statlog::make_sink_list(std::move(file_sink), std::move(stdout_sink))};
-    
+    auto logger = statlog::make_async_logger<pattern>("file", statlog::make_sink_list(std::move(file_sink), std::move(stdout_sink)));
     
     std::thread t1([&logger] {
         for (int i = 0; i < 100000; ++i) {
@@ -32,9 +31,9 @@ TEST_CASE("exclusive sinks") {
 
 TEST_CASE("shared sinks") {
     static constexpr statlog::pattern pattern("[%L][%t][%n] %v");
-    statlog::file_sink_st<pattern> file_sink("shared_file.log");
-    statlog::sync_logger logger1{ "logger_one", statlog::make_sink_list(file_sink)};
-    statlog::sync_logger logger2{ "logger_two", statlog::make_sink_list(file_sink)};
+    statlog::file_sink_st file_sink("shared_file.log");
+    auto logger1 = statlog::make_sync_logger<pattern>("logger_one", statlog::make_sink_list(file_sink));
+    auto logger2 = statlog::make_sync_logger<pattern>("logger_two", statlog::make_sink_list(file_sink));
 
     for (int i = 0; i < 1000; i++) {
         logger1.info("Hello, {}", i);

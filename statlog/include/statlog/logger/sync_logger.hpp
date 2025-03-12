@@ -12,33 +12,25 @@
 #include <utility>
 
 namespace statlog {
-    template <typename... Sinks>
-    class sync_logger_t : public logger<sync_logger_t<Sinks...>> {
+    template <pattern P, typename... Sinks>
+    class sync_logger_t : public logger<P, sync_logger_t<P, Sinks...>> {
     public:
-        explicit sync_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level log_level = level::info, level flush_level = level::warn) : logger<sync_logger_t>(name, log_level, flush_level), _sinks(std::move(sinks)) {}
+        explicit sync_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level log_level = level::info, level flush_level = level::warn) : logger<P, sync_logger_t>(name, log_level, flush_level), _sinks(std::move(sinks)) {}
 
-        template <typename... Args>
-        void log(level l, std::format_string<Args...> fmt, Args&&... args) {  
-            logger_message msg{
-                    .level = l,
-                    .thread_id = std::this_thread::get_id(),
-                    .logger_name = this->name(),
-                    .message = std::format(fmt, std::forward<Args>(args)...)
-            };
-
-            std::apply([&](auto&&... sinks) {
-                (log_it(sinks, msg), ...);
-            }, _sinks);
+        void _log(level l, const std::string& message) {
+            if (this->should_log(l)) {
+                std::apply([&](auto&&... sinks) {
+                    (log_it(std::forward<Sinks>(sinks), l, message), ...);
+                    }, _sinks);
+            }
         }
     private:
         template <typename S, typename... Args>
-        void log_it(S&& sink, const logger_message& msg)
+        void log_it(S&& sink, level l, const std::string& msg)
         {
-            if (this->should_log(msg.level)) {
-                sink.sink(msg);
-                if (this->should_flush(msg.level)) {
-                    sink.flush();
-                }
+            sink.sink(msg);
+            if (this->should_flush(l)) {
+                sink.flush();
             }
         }
 
@@ -46,7 +38,22 @@ namespace statlog {
         sink_list<Sinks...> _sinks;
     };
 
-    template <typename... Sinks>
-    using sync_logger = sync_logger_t<Sinks...>;
+    template <pattern P, typename... Sinks>
+    using sync_logger = sync_logger_t<P, Sinks...>;
+
+    template <pattern P, typename... Sinks>
+    auto make_sync_logger(
+        std::string_view name,
+        sink_list<Sinks...>&& sinks,
+        level log_level = level::info,
+        level flush_level = level::warn)
+    {
+        return sync_logger<P, Sinks...>(
+            name,
+            std::move(sinks),
+            log_level,
+            flush_level
+        );
+    }
 }
 #endif
