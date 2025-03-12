@@ -22,7 +22,7 @@ namespace statlog {
             result.reserve(SMALL_MESSAGE_SIZE);
 
             [&]<std::size_t... I>(std::index_sequence<I...>) {
-                (format_token<P[I]>(result, msg), ...);
+                (format_token<P[I]>(result, *msg), ...);
             }(std::make_index_sequence<P.size()>{});
 
             return result;
@@ -40,40 +40,6 @@ namespace statlog {
         }
 
     private:
-        template <token T>
-        static constexpr void format_token(std::string& buffer, std::shared_ptr<const logger_message>& msg) {
-            if constexpr (T.type == token_type::literal) {
-                buffer.append(P.cstr() + T.start, T.end - T.start);
-            }
-            else if constexpr (T.type == token_type::message) {
-                buffer.append(msg->message);
-            }
-            else if constexpr (T.type == token_type::thread_id) {
-                buffer.append(std::format("{}", msg->thread_id));
-            }
-            else if constexpr (T.type == token_type::logger_name) {
-                buffer.append(msg->logger_name);
-            }
-            else if constexpr (T.type == token_type::level_lower) {
-                buffer.append(level_to_string_lower(msg->level));
-            }
-            else if constexpr (T.type == token_type::level_upper) {
-                buffer.append(level_to_string_upper(msg->level));
-            }
-            else if constexpr (T.type == token_type::level_color_start) {
-                buffer.append(level_to_color(msg->level));
-            }
-            else if constexpr (T.type == token_type::level_color_end) {
-                buffer.append(level_color::reset);
-            }
-            else if constexpr (T.type == token_type::percent_sign) {
-                buffer += '%';
-            }
-            else {
-                std::unreachable();
-            }
-        }
-
         template <token T>
         static constexpr void format_token(std::string& buffer, const logger_message& msg) {
             if constexpr (T.type == token_type::literal) {

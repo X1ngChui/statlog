@@ -5,13 +5,14 @@
 
 #include <statlog/sink/sink.hpp>
 #include <statlog/platform/file.hpp>
+#include <statlog/utility/buffer.hpp>
 
 namespace statlog {
     template <typename M, pattern P>
     class basic_file_sink_t : public sink<basic_file_sink_t<M, P>, M, P> {
     public:
-        basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app)
-            : _file(path, mode) {
+        basic_file_sink_t(const std::filesystem::path& path, std::ios_base::openmode mode = std::ios::app, std::size_t buffer_size = 32 * 1024)
+            : _file(path, mode), _buffer(buffer_size) {
         }
 
         basic_file_sink_t(const basic_file_sink_t&) = delete;
@@ -51,9 +52,8 @@ namespace statlog {
             }
         }
     private:
-        inline static constexpr std::size_t BUFFER_SIZE = 8192;
         file _file;
-        inline_vector<char, BUFFER_SIZE> _buffer{};
+        buffer<char> _buffer;
     };
     
     template <typename M, pattern P>

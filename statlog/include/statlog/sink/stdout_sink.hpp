@@ -5,7 +5,7 @@
 
 #include <statlog/sink/sink.hpp>
 #include <statlog/platform/stdout.hpp>
-#include <statlog/utility/inline_vector.hpp>
+#include <statlog/utility/buffer.hpp>
 #include <array>
 #include <mutex>
 
@@ -13,7 +13,7 @@ namespace statlog {
     template <typename M, pattern P, bool Colorful>
     class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, P, Colorful>, M, P> {
     public:
-        basic_stdout_sink_t() = default;
+        basic_stdout_sink_t(std::size_t buffer_size = 8 * 1024) : _buffer(buffer_size) {}
         basic_stdout_sink_t(const basic_stdout_sink_t&) = delete;
         basic_stdout_sink_t& operator=(const basic_stdout_sink_t&) = delete;
         basic_stdout_sink_t(basic_stdout_sink_t&&) = default;
@@ -51,7 +51,7 @@ namespace statlog {
     private:
         inline static constexpr std::size_t BUFFER_SIZE = 8192;
         stdout_t<Colorful> _stdout;
-        inline_vector<char, BUFFER_SIZE> _buffer{};
+        buffer<char> _buffer;
     };
 
     class stdout_mutex_t {
