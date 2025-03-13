@@ -8,7 +8,7 @@
 #include <statlog/formatter/pattern.hpp>
 
 #include <string>
-#include <sstream>
+#include <format>
 
 namespace statlog {
     constexpr std::size_t SMALL_MESSAGE_SIZE = 256;
@@ -19,7 +19,7 @@ namespace statlog {
         static constexpr std::string format(const logger_info& info) {
             std::string result;
             result.reserve(SMALL_MESSAGE_SIZE);
-
+    
             [&] <std::size_t... I>(std::index_sequence<I...>) {
                 (format_token<P[I]>(result, info), ...);
             }(std::make_index_sequence<P.size()>{});
@@ -31,13 +31,14 @@ namespace statlog {
         template <token T>
         static constexpr void format_token(std::string& buffer, const logger_info& info) {
             if constexpr (T.type == token_type::literal) {
-                buffer.append(P.cstr() + T.start, T.end - T.start);
+                buffer.append(P.literal(T.begin, T.end));
             }
             else if constexpr (T.type == token_type::message) {
                 buffer.append(info.message);
             }
             else if constexpr (T.type == token_type::thread_id) {
-                buffer.append(std::format("{}", info.thread_id));
+                auto it = std::back_inserter(buffer);
+                std::format_to(it, "{}", info.thread_id);
             }
             else if constexpr (T.type == token_type::logger_name) {
                 buffer.append(info.logger_name);

@@ -21,22 +21,22 @@ namespace statlog {
     using token_type = token_type_t;
 
     namespace token_str {
-        constexpr const char token_prefix[] = "%";
-        constexpr const char message[] = "%v";
-        constexpr const char thread_id[] = "%t";
-        constexpr const char logger_name[] = "%n";
-        constexpr const char level_lower[] = "%l";
-        constexpr const char level_upper[] = "%L";
-        constexpr const char level_color_start[] = "%^";
-        constexpr const char level_color_end[] = "%$";
-        constexpr const char percent_sign[] = "%%";
+        constexpr std::string_view token_prefix = "%";
+        constexpr std::string_view message = "%v";
+        constexpr std::string_view thread_id = "%t";
+        constexpr std::string_view logger_name = "%n";
+        constexpr std::string_view level_lower = "%l";
+        constexpr std::string_view level_upper = "%L";
+        constexpr std::string_view level_color_start = "%^";
+        constexpr std::string_view level_color_end = "%$";
+        constexpr std::string_view percent_sign = "%%";
     }
 
     struct token_t {
         token_type type = token_type::dummy;
         
-        // literal
-        std::size_t start = 0;
+        // Token's begin and end positions in the pattern string
+        std::size_t begin = 0;
         std::size_t end = 0;
     };
     using token = token_t;

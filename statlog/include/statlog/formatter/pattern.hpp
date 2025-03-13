@@ -28,8 +28,8 @@ namespace statlog {
             return _tokens[i];
         }
 
-        consteval const char* cstr() const {
-            return _str.data();
+        consteval std::string_view literal(std::size_t begin, std::size_t end) const {
+            return std::string_view(_str.data() + begin, end - begin);
         }
 
     private:
@@ -72,19 +72,13 @@ namespace statlog {
             _tokens[--_ntokens] = { token_type::dummy };
         }
 
-        template <std::size_t M>
-        consteval bool lookahead(std::size_t from, const char(&target)[M]) const {
-            for (std::size_t i = 0; i < M - 1; ++i) {   // ignore null terminator
-                if (from + i >= N || _str[from + i] != target[i]) {
+        consteval bool lookahead(std::size_t from, std::string_view target) const {
+            for (char c : target) {
+                if (_str[from++] != c) {
                     return false;
                 }
             }
             return true;
-        }
-
-        template <std::size_t M>
-        static consteval std::size_t token_size(const char(&target)[M]) {
-            return M - 1;
         }
 
         consteval token& next_token() {
@@ -105,48 +99,48 @@ namespace statlog {
         }
 
         consteval std::size_t add_message(std::size_t cursor) {
-            next_token() = { token_type::message, cursor, cursor + token_size(token_str::message)};
-            return cursor + token_size(token_str::message);
+            next_token() = { token_type::message, cursor, cursor + token_str::message.size() };
+            return cursor + token_str::message.size();
         }
 
         consteval std::size_t add_thread_id(std::size_t cursor) {
-            next_token() = { token_type::thread_id, cursor, cursor + token_size(token_str::thread_id)};
-            return cursor + token_size(token_str::thread_id);
+            next_token() = { token_type::thread_id, cursor, cursor + token_str::thread_id.size() };
+            return cursor + token_str::thread_id.size();
         }
 
         consteval std::size_t add_logger_name(std::size_t cursor) {
-            next_token() = { token_type::logger_name, cursor, cursor + token_size(token_str::logger_name)};
-            return cursor + token_size(token_str::logger_name);
+            next_token() = { token_type::logger_name, cursor, cursor + token_str::logger_name.size() };
+            return cursor + token_str::logger_name.size();
         }
 
         consteval std::size_t add_level_lower(std::size_t cursor) {
-            next_token() = { token_type::level_lower, cursor, cursor + token_size(token_str::level_lower)};
-            return cursor + token_size(token_str::level_lower);
+            next_token() = { token_type::level_lower, cursor, cursor + token_str::level_lower.size() };
+            return cursor + token_str::level_lower.size();
         }
 
         consteval std::size_t add_level_upper(std::size_t cursor) {
-            next_token() = { token_type::level_upper, cursor, cursor + token_size(token_str::level_upper)};
-            return cursor + token_size(token_str::level_upper);
+            next_token() = { token_type::level_upper, cursor, cursor + token_str::level_upper.size() };
+            return cursor + token_str::level_upper.size();
         }
 
         consteval std::size_t add_level_color_start(std::size_t cursor) {
-            next_token() = { token_type::level_color_start, cursor, cursor + token_size(token_str::level_color_start) };
-            return cursor + token_size(token_str::level_color_start);
+            next_token() = { token_type::level_color_start, cursor, cursor + token_str::level_color_start.size() };
+            return cursor + token_str::level_color_start.size();
         }
 
         consteval std::size_t add_level_color_end(std::size_t cursor) {
-            next_token() = { token_type::level_color_end, cursor, cursor + token_size(token_str::level_color_end) };
-            return cursor + token_size(token_str::level_color_end);
+            next_token() = { token_type::level_color_end, cursor, cursor + token_str::level_color_end.size() };
+            return cursor + token_str::level_color_end.size();
         }
 
         consteval std::size_t add_percent_sign(std::size_t cursor) {
-            next_token() = { token_type::percent_sign, cursor, cursor + token_size(token_str::percent_sign) };
-            return cursor + token_size(token_str::percent_sign);
+            next_token() = { token_type::percent_sign, cursor, cursor + token_str::percent_sign.size() };
+            return cursor + token_str::percent_sign.size();
         }
     public:
         // Due to the C++20 standard, the following member variables must be public.
         std::array<char, N> _str{};
-        std::array<token, 2 * N / 3 + 1> _tokens{};
+        std::array<token, (2 * N + 1) / 3> _tokens{};
         std::size_t _ntokens = 0;
     };
     template <size_t N>

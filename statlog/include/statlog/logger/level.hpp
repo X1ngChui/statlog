@@ -14,33 +14,33 @@ namespace statlog {
     using level = level_t;
 
     namespace level_color {
-        constexpr const char* reset = "\033[0m";
-        constexpr const char* gray = "\033[90m";
-        constexpr const char* cyan = "\033[36m";
-        constexpr const char* green = "\033[32m";
-        constexpr const char* yellow = "\033[33m";
-        constexpr const char* red = "\033[31m";
-        constexpr const char* bold_red = "\033[1;31m";
+        constexpr std::string_view reset = "\033[0m";
+        constexpr std::string_view gray = "\033[90m";
+        constexpr std::string_view cyan = "\033[36m";
+        constexpr std::string_view green = "\033[32m";
+        constexpr std::string_view yellow = "\033[33m";
+        constexpr std::string_view red = "\033[31m";
+        constexpr std::string_view bold_red = "\033[1;31m";
     }
 
     namespace level_str {
-        constexpr const char* trace_lower = "trace";
-        constexpr const char* debug_lower = "debug";
-        constexpr const char* info_lower = "info";
-        constexpr const char* warn_lower = "warn";
-        constexpr const char* error_lower = "error";
-        constexpr const char* fatal_lower = "fatal";
-        constexpr const char* unknown_lower = "unknown";
-        constexpr const char* trace_upper = "TRACE";
-        constexpr const char* debug_upper = "DEBUG";
-        constexpr const char* info_upper = "INFO";
-        constexpr const char* warn_upper = "WARN";
-        constexpr const char* error_upper = "ERROR";
-        constexpr const char* fatal_upper = "FATAL";
-        constexpr const char* unknown_upper = "UNKNOWN";
+        constexpr std::string_view trace_lower = "trace";
+        constexpr std::string_view debug_lower = "debug";
+        constexpr std::string_view info_lower = "info";
+        constexpr std::string_view warn_lower = "warn";
+        constexpr std::string_view error_lower = "error";
+        constexpr std::string_view fatal_lower = "fatal";
+        constexpr std::string_view unknown_lower = "unknown";
+        constexpr std::string_view trace_upper = "TRACE";
+        constexpr std::string_view debug_upper = "DEBUG";
+        constexpr std::string_view info_upper = "INFO";
+        constexpr std::string_view warn_upper = "WARN";
+        constexpr std::string_view error_upper = "ERROR";
+        constexpr std::string_view fatal_upper = "FATAL";
+        constexpr std::string_view unknown_upper = "UNKNOWN";
     }
 
-    inline static const char* level_to_string_lower(level l) {
+    inline static constexpr std::string_view level_to_string_lower(level l) {
         switch (l) {
         case level::trace:
             return level_str::trace_lower;
@@ -58,7 +58,7 @@ namespace statlog {
         return level_str::unknown_lower;
     }
 
-    inline static const char* level_to_string_upper(level l) {
+    inline static constexpr std::string_view level_to_string_upper(level l) {
         switch (l) {
         case level::trace:
             return level_str::trace_upper;
@@ -76,7 +76,7 @@ namespace statlog {
         return level_str::unknown_upper;
     }
 
-    inline static const char* level_to_color(level l) {
+    inline static constexpr std::string_view level_to_color(level l) {
         switch (l) {
         case level::trace:
             return level_color::gray;
