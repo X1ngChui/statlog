@@ -11,12 +11,12 @@
 #include <memory>
 
 namespace statlog {
-    template <typename M>
-    class basic_file_sink_t : public sink<basic_file_sink_t<M>, M> {
+    template <typename M, bool Sync>
+    class basic_file_sink_t : public sink<basic_file_sink_t<M, Sync>, M> {
     public:
         basic_file_sink_t(const std::filesystem::path& path,
             std::ios_base::openmode mode = std::ios::app,
-            std::size_t max_buffer_size = 8_MB)
+            std::size_t max_buffer_size = 64_KB)
             : _file(path, mode), _max_buffer_size(max_buffer_size) 
         {    
         }
@@ -41,7 +41,9 @@ namespace statlog {
         void _flush() {
             if (!_buffer.empty()) {
                 _file.write(_buffer.data(), _buffer.size());
-                _file.flush();
+                if constexpr (Sync) {
+                    _file.flush();
+                }
                 _buffer.clear();
             }
         }
@@ -52,10 +54,12 @@ namespace statlog {
         std::vector<char> _buffer;
     };
 
-    template <typename M>
-    using basic_file_sink = basic_file_sink_t<M>;
+    template <typename M, bool Sync>
+    using basic_file_sink = basic_file_sink_t<M, Sync>;
 
-    using file_sink_st = basic_file_sink<null_mutex>;
-    using file_sink_mt = basic_file_sink<mutex>;
+    using file_sink_st = basic_file_sink<null_mutex, false>;
+    using file_sink_mt = basic_file_sink<mutex, false>;
+    using sync_file_sink_st = basic_file_sink<null_mutex, true>;
+    using sync_file_sink_mt = basic_file_sink<mutex, true>;
 }
 #endif

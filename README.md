@@ -77,14 +77,17 @@ More specifiers coming soon! Welcome for contribution!
 
 ## Sink Types
 
-| Sink Type      | Thread Safety | Description                     |
-|----------------|----------------|---------------------------------|
-| `file_sink_mt` | Multi-thread    | Thread-safe file logging       |
-| `file_sink_st` | Single-thread   | Single-thread file IO          |
-| `stdout_sink_mt`| Multi-thread   | Thread-safe console output     |
-| `stdout_sink_st`| Single-thread  | Single-thread console writing  |
-| `colorful_stdout_sink_mt` | Multi-thread | Thread-safe colored console output |
-| `colorful_stdout_sink_st` | Single-thread | Single-thread colored console writing |
+| Sink Type                  | Thread Safety  | Description                                                                  |
+|----------------------------|----------------|------------------------------------------------------------------------------|
+| `file_sink_mt`             | Multi-thread   | Thread-safe file logging with **buffered writes** (relies on OS kernel flush)|
+| `file_sink_st`             | Single-thread  | Single-thread file I/O with **buffered writes** (relies on OS kernel flush)  |
+| `sync_file_sink_mt`        | Multi-thread   | Thread-safe file logging with **synchronous writes** (forces OS-level flush) |
+| `sync_file_sink_st`        | Single-thread  | Single-thread file I/O with **synchronous writes** (forces OS-level flush)   |
+| `stdout_sink_mt`           | Multi-thread   | Thread-safe console output                                                   |
+| `stdout_sink_st`           | Single-thread  | Single-thread console output                                                 |
+| `colorful_stdout_sink_mt`  | Multi-thread   | Thread-safe colored console output (ANSI escape code support)                |
+| `colorful_stdout_sink_st`  | Single-thread  | Single-thread colored console output (ANSI escape code support)              |
+
 
 ## Performance Considerations
 
