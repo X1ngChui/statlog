@@ -5,7 +5,7 @@
 
 #include <statlog/sink/sink.hpp>
 #include <statlog/platform/stdout.hpp>
-#include <statlog/utility/buffer.hpp>
+#include <statlog/utility/storage_units.hpp>
 #include <array>
 #include <mutex>
 
@@ -13,7 +13,7 @@ namespace statlog {
     template <typename M, bool Colorful>
     class basic_stdout_sink_t : public sink<basic_stdout_sink_t<M, Colorful>, M> {
     public:
-        basic_stdout_sink_t(std::size_t buffer_size = 8 * 1024) : _buffer(buffer_size) {}
+        basic_stdout_sink_t(std::size_t max_buffer_size = 8_KB) : _max_buffer_size(max_buffer_size) {}
         basic_stdout_sink_t(const basic_stdout_sink_t&) = delete;
         basic_stdout_sink_t& operator=(const basic_stdout_sink_t&) = delete;
         basic_stdout_sink_t(basic_stdout_sink_t&&) = default;
@@ -21,22 +21,9 @@ namespace statlog {
         ~basic_stdout_sink_t() { _flush(); }
 
         void _sink(const std::string& message) {
-            const char* data = message.data();
-            std::size_t size = message.size();
-
-            while (size > 0) {
-                if (_buffer.size() >= _buffer.capacity()) {
-                    _flush();
-                }
-
-                const std::size_t available = _buffer.capacity() - _buffer.size();
-                assert(available > 0);
-                const std::size_t chunk = std::min(size, available);
-                assert(chunk > 0);
-
-                _buffer.insert(_buffer.end(), data, data + chunk);
-                data += chunk;
-                size -= chunk;
+            _buffer.insert(_buffer.end(), message.begin(), message.end());
+            if (_buffer.size() >= _max_buffer_size) {
+                _flush();
             }
         }
 
@@ -44,14 +31,13 @@ namespace statlog {
             if (_buffer.size() > 0) {
                 _stdout.write(_buffer.data(), _buffer.size());
                 _buffer.clear();
-                assert(_buffer.capacity() > _buffer.size());
             }
         }
 
     private:
-        inline static constexpr std::size_t BUFFER_SIZE = 8192;
         stdout_t<Colorful> _stdout;
-        buffer<char> _buffer;
+        std::size_t _max_buffer_size;
+        std::vector<char> _buffer;
     };
 
     class stdout_mutex_t {
