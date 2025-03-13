@@ -83,6 +83,8 @@ More specifiers coming soon! Welcome for contribution!
 | `file_sink_st` | Single-thread   | Single-thread file IO          |
 | `stdout_sink_mt`| Multi-thread   | Thread-safe console output     |
 | `stdout_sink_st`| Single-thread  | Single-thread console writing  |
+| `colorful_stdout_sink_mt` | Multi-thread | Thread-safe colored console output |
+| `colorful_stdout_sink_st` | Single-thread | Single-thread colored console writing |
 
 ## Performance Considerations
 
