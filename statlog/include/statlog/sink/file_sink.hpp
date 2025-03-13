@@ -16,7 +16,7 @@ namespace statlog {
     public:
         basic_file_sink_t(const std::filesystem::path& path,
             std::ios_base::openmode mode = std::ios::app,
-            std::size_t max_buffer_size = 8_MB)
+            std::size_t max_buffer_size = 64_KB)
             : _file(path, mode), _max_buffer_size(max_buffer_size) 
         {    
         }
