@@ -92,7 +92,8 @@ namespace statlog {
                     .level = l,
                     .thread_id = std::this_thread::get_id(),
                     .logger_name = _name,
-                    .message = message
+                    .message = message,
+                    .time = std::chrono::system_clock::now()
                 }));
         }
 

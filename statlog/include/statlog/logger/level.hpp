@@ -2,6 +2,11 @@
 #ifndef STATLOG_LOGGER_LEVEL_INCLUDED
 #define STATLOG_LOGGER_LEVEL_INCLUDED
 
+#include <string>
+#include <string_view>
+#include <thread>
+#include <chrono>
+
 namespace statlog {
     enum class level_t {
         trace,
@@ -99,6 +104,7 @@ namespace statlog {
         std::thread::id thread_id;
         const std::string& logger_name;
         const std::string& message;
+        std::chrono::system_clock::time_point time;
     };
     using logger_info = logger_info_t;
 }

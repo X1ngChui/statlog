@@ -9,7 +9,7 @@
 TEST_CASE("exclusive sinks") {
     using statlog::operator"" _KB;
 
-    static constexpr statlog::pattern pattern("%^[%L][%t][%n] %v%$");
+    static constexpr statlog::pattern pattern("%^[%P][%L][%D][%n] %v%$");
     statlog::file_sink_mt file_sink("file.log");
     statlog::colorful_stdout_sink_mt stdout_sink(32_KB);
 

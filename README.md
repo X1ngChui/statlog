@@ -65,12 +65,16 @@ Current supported format specifiers:
 |-----------|-------------------------|
 | `%v`      | Actual log message      |
 | `%t`      | Thread ID               |
+| `%P`      | Process ID              |
 | `%n`      | Logger name             |
 | `%l`      | Log level in lowercase  |
 | `%L`      | Log level in uppercase  |
 | `%^`      | Log level color start   |
 | `%$`      | Log level color end     |
 | `%%`      | Literal `%` character   |
+| `%T` `%X` | Time presentation in `HH:MM:SS` format |
+| `%D` `%x` | Date presentation in `MM/DD/YY` format |
+| `%c`      | Data and time presentation in `MM/DD/YY HH:MM:SS` format |
 
 
 More specifiers coming soon! Welcome for contribution!

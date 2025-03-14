@@ -6,6 +6,7 @@
 #include <statlog/logger/logger.hpp>
 #include <statlog/formatter/token.hpp>
 #include <statlog/formatter/pattern.hpp>
+#include <statlog/platform/os.hpp>
 
 #include <string>
 #include <format>
@@ -37,8 +38,10 @@ namespace statlog {
                 buffer.append(info.message);
             }
             else if constexpr (T.type == token_type::thread_id) {
-                auto it = std::back_inserter(buffer);
-                std::format_to(it, "{}", info.thread_id);
+                std::format_to(std::back_inserter(buffer), "{}", info.thread_id);
+            }
+            else if constexpr (T.type == token_type::process_id) {
+                std::format_to(std::back_inserter(buffer), "{}", get_process_id());
             }
             else if constexpr (T.type == token_type::logger_name) {
                 buffer.append(info.logger_name);
@@ -57,6 +60,18 @@ namespace statlog {
             }
             else if constexpr (T.type == token_type::percent_sign) {
                 buffer += '%';
+            }
+            else if constexpr (T.type == token_type::time_HMS) {
+                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(info.time));
+                std::format_to(std::back_inserter(buffer), "{:%H:%M:%S}", local_time);
+            }
+            else if constexpr (T.type == token_type::date_MDY) {
+                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(info.time));
+                std::format_to(std::back_inserter(buffer), "{:%m/%d/%y}", local_time);
+            }
+            else if constexpr (T.type == token_type::date_and_time) {
+                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), info.time);
+                std::format_to(std::back_inserter(buffer), "{:%c}", local_time);
             }
             else {
                 std::unreachable();

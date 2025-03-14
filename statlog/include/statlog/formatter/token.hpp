@@ -10,12 +10,16 @@ namespace statlog {
         literal,
         message,            // %v
         thread_id,          // %t
+        process_id,         // %P
         logger_name,        // %n
         level_lower,        // %l
         level_upper,        // %L
         level_color_start,  // %^
         level_color_end,    // %$
         percent_sign,       // %%
+        time_HMS,           // %T %X
+        date_MDY,           // %D %x
+        date_and_time,      // %c
         dummy
     };
     using token_type = token_type_t;
@@ -24,12 +28,18 @@ namespace statlog {
         constexpr std::string_view token_prefix = "%";
         constexpr std::string_view message = "%v";
         constexpr std::string_view thread_id = "%t";
+        constexpr std::string_view process_id = "%P";
         constexpr std::string_view logger_name = "%n";
         constexpr std::string_view level_lower = "%l";
         constexpr std::string_view level_upper = "%L";
         constexpr std::string_view level_color_start = "%^";
         constexpr std::string_view level_color_end = "%$";
         constexpr std::string_view percent_sign = "%%";
+        constexpr std::string_view time_HMS1 = "%T";
+        constexpr std::string_view time_HMS2 = "%X";
+        constexpr std::string_view date_MDY1 = "%D";
+        constexpr std::string_view date_MDY2 = "%x";
+        constexpr std::string_view date_and_time = "%c";
     }
 
     struct token_t {
