@@ -5,7 +5,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
-#include <chrono>
+#include <ctime>
 
 namespace statlog {
     enum class level_t {
@@ -104,7 +104,8 @@ namespace statlog {
         std::thread::id thread_id;
         const std::string& logger_name;
         const std::string& message;
-        std::chrono::system_clock::time_point time;
+        std::tm local_time;
+        std::tm utc_time;
     };
     using logger_info = logger_info_t;
 }

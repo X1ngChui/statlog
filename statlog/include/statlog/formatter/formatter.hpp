@@ -7,6 +7,7 @@
 #include <statlog/formatter/token.hpp>
 #include <statlog/formatter/pattern.hpp>
 #include <statlog/platform/os.hpp>
+#include <statlog/platform/time.hpp>
 
 #include <string>
 #include <format>
@@ -62,16 +63,18 @@ namespace statlog {
                 buffer += '%';
             }
             else if constexpr (T.type == token_type::time_HMS) {
-                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(info.time));
-                std::format_to(std::back_inserter(buffer), "{:%H:%M:%S}", local_time);
+                std::format_to(std::back_inserter(buffer), "{:02d}:{:02d}:{:02d}",
+                    info.local_time.tm_hour, info.local_time.tm_min, info.local_time.tm_sec);
             }
             else if constexpr (T.type == token_type::date_MDY) {
-                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::floor<std::chrono::seconds>(info.time));
-                std::format_to(std::back_inserter(buffer), "{:%m/%d/%y}", local_time);
+                std::format_to(std::back_inserter(buffer), "{:02d}/{:02d}/{:02d}",
+                    info.local_time.tm_mon + 1, info.local_time.tm_mday, (info.local_time.tm_year + 1900) % 100);
             }
             else if constexpr (T.type == token_type::date_and_time) {
-                auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), info.time);
-                std::format_to(std::back_inserter(buffer), "{:%c}", local_time);
+                std::format_to(std::back_inserter(buffer),
+                    "{:02d}/{:02d}/{:02d} {:02d}:{:02d}:{02d}",
+                    info.local_time.tm_mon + 1, info.local_time.tm_mday, (info.local_time.tm_year + 1900) % 100,
+                    info.local_time.tm_hour, info.local_time.tm_min, info.local_time.tm_sec);
             }
             else {
                 std::unreachable();

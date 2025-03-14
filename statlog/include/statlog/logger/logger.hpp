@@ -87,13 +87,15 @@ namespace statlog {
         }
 
         void log(level l, const std::string& message) {
+            time_t now = std::time(nullptr);
             static_cast<L*>(this)->_log(l, 
                 formatter<P>::format(logger_info{
                     .level = l,
                     .thread_id = std::this_thread::get_id(),
                     .logger_name = _name,
                     .message = message,
-                    .time = std::chrono::system_clock::now()
+                    .local_time = time::local_time(now),
+                    .utc_time = time::utc_time(now)
                 }));
         }
 
@@ -118,11 +120,11 @@ namespace statlog {
         }
 
     protected:
-        inline bool should_log(statlog::level l) const noexcept {
+        inline bool should_log(level_t l) const noexcept {
             return l >= _log_level;
         }
 
-        inline bool should_flush(statlog::level l) noexcept {
+        inline bool should_flush(level_t l) noexcept {
             return l >= _flush_level;
         }
 
