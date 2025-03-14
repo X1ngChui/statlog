@@ -41,6 +41,9 @@ namespace statlog {
                 else if (lookahead(cursor, token_str::thread_id)) {
                     cursor = add_thread_id(cursor);
                 }
+                else if (lookahead(cursor, token_str::process_id)) {
+                    cursor = add_process_id(cursor);
+                }
                 else if (lookahead(cursor, token_str::logger_name)) {
                     cursor = add_logger_name(cursor);
                 }
@@ -58,6 +61,21 @@ namespace statlog {
                 }
                 else if (lookahead(cursor, token_str::percent_sign)) {
                     cursor = add_percent_sign(cursor);
+                }
+                else if (lookahead(cursor, token_str::time_HMS1)) {
+                    cursor = add_timeHMS1(cursor);
+                }
+                else if (lookahead(cursor, token_str::time_HMS2)) {
+                    cursor = add_timeHMS2(cursor);
+                }
+                else if (lookahead(cursor, token_str::date_MDY1)) {
+                    cursor = add_dateMDY1(cursor);
+                }
+                else if (lookahead(cursor, token_str::date_MDY2)) {
+                    cursor = add_dateMDY2(cursor);
+                }
+                else if (lookahead(cursor, token_str::date_and_time)) {
+                    cursor = add_date_and_time(cursor);
                 }
                 else {
                     cursor = add_literal(cursor);
@@ -108,6 +126,11 @@ namespace statlog {
             return cursor + token_str::thread_id.size();
         }
 
+        consteval std::size_t add_process_id(std::size_t cursor) {
+            next_token() = { token_type::process_id, cursor, cursor + token_str::process_id.size() };
+            return cursor + token_str::process_id.size();
+        }
+
         consteval std::size_t add_logger_name(std::size_t cursor) {
             next_token() = { token_type::logger_name, cursor, cursor + token_str::logger_name.size() };
             return cursor + token_str::logger_name.size();
@@ -136,6 +159,31 @@ namespace statlog {
         consteval std::size_t add_percent_sign(std::size_t cursor) {
             next_token() = { token_type::percent_sign, cursor, cursor + token_str::percent_sign.size() };
             return cursor + token_str::percent_sign.size();
+        }
+
+        consteval std::size_t add_timeHMS1(std::size_t cursor) {
+            next_token() = { token_type::time_HMS, cursor, cursor + token_str::time_HMS1.size() };
+            return cursor + token_str::time_HMS1.size();
+        }
+
+        consteval std::size_t add_timeHMS2(std::size_t cursor) {
+            next_token() = { token_type::time_HMS, cursor, cursor + token_str::time_HMS2.size() };
+            return cursor + token_str::time_HMS2.size();
+        }
+
+        consteval std::size_t add_date_and_time(std::size_t cursor) {
+            next_token() = { token_type::date_and_time, cursor, cursor + token_str::date_and_time.size() };
+            return cursor + token_str::date_and_time.size();
+        }
+
+        consteval std::size_t add_dateMDY1(std::size_t cursor) {
+            next_token() = { token_type::date_MDY, cursor, cursor + token_str::date_MDY1.size() };
+            return cursor + token_str::date_MDY1.size();
+        }
+
+        consteval std::size_t add_dateMDY2(std::size_t cursor) {
+            next_token() = { token_type::date_MDY, cursor, cursor + token_str::date_MDY2.size() };
+            return cursor + token_str::date_MDY2.size();
         }
     public:
         // Due to the C++20 standard, the following member variables must be public.
