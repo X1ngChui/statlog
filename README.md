@@ -34,10 +34,10 @@ git clone --recursive https://github.com/X1ngChui/statlog.git
 statlog::file_sink_mt file_sink("app.log");
 statlog::stdout_sink_mt console_sink{};
 
-constexpr statlog::pattern pattern("[%L][%t][%n] %v");
-auto logger = statlog::make_async_logger<pattern>("main", 
-	statlog::make_sink_list(std::move(file_sink), std::move(console_sink)),
-	statlog::level::info, 4
+constexpr statlog::pattern pattern("[%L][%T][%n] %v");
+auto logger = statlog::make_async_logger<pattern>(
+	"main", 
+	statlog::make_sink_list(std::move(file_sink), std::move(console_sink))
 );
 
 logger.info("System initialized");
@@ -47,9 +47,9 @@ logger.warn("Low memory: {}MB free", 512);
 ### Shared Sinks (Multiple Loggers → 1 Sink)
 
 ```cpp
-statlog::file_sink_st shared_sink("debug.log");
+statlog::colorful_stdout_sink_st shared_sink("debug.log");
 
-constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+constexpr statlog::pattern pattern("%^[%L][%T][%n] %v%$");
 auto net_logger = statlog::make_sync_logger("network", statlog::make_sink_list(shared_sink));
 auto db_logger = statlog::make_sync_logger("database", statlog::make_sink_list(shared_sink));
 
@@ -74,7 +74,7 @@ Current supported format specifiers:
 | `%%`      | Literal `%` character   |
 | `%T` `%X` | Time presentation in `HH:MM:SS` format |
 | `%D` `%x` | Date presentation in `MM/DD/YY` format |
-| `%c`      | Data and time presentation in `MM/DD/YY HH:MM:SS` format |
+| `%c`      | Date and time presentation in `MM/DD/YY HH:MM:SS` format |
 
 
 More specifiers coming soon! Welcome for contribution!
@@ -98,6 +98,7 @@ More specifiers coming soon! Welcome for contribution!
 **statlog** achieves its speed through:
 
 - Compile-time pattern validation
+- Distinct formatter for each pattern
 - Template-based sink composition
 - Lock-free design for single-thread sinks
 
