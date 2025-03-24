@@ -11,7 +11,7 @@ namespace statlog {
     template <pattern P, typename... Sinks>
     class async_logger_t : public logger<P, async_logger_t<P, Sinks...>> {
     public:
-        explicit async_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level log_level = level::info, level flush_level = level::warn, std::size_t nworkers = 2) : logger<P, async_logger_t>(name, log_level, flush_level), _sinks(std::move(sinks)), _pool(nworkers) {}
+        explicit async_logger_t(std::string_view name, sink_list<Sinks...>&& sinks, level log_level, level flush_level, std::size_t nworkers) : logger<P, async_logger_t>(name, log_level, flush_level), _sinks(std::move(sinks)), _pool(nworkers) {}
 
         ~async_logger_t() = default;
 
@@ -46,7 +46,7 @@ namespace statlog {
         sink_list<Sinks...>&& sinks,
         level log_level = level::info,
         level flush_level = level::warn,
-        std::size_t nworkers = 2)
+        std::size_t nworkers = sizeof...(Sinks))
     {
         return async_logger_t<P, Sinks...>(
             name,

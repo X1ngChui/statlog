@@ -9,16 +9,25 @@
 TEST_CASE("exclusive sinks") {
     using statlog::operator"" _KB;
 
-    static constexpr statlog::pattern pattern("%^[%P][%L][%T][%n] %v%$");
+    static constexpr statlog::pattern pattern("%^[%L][%T][%n][%t] %v%$");
     statlog::file_sink_mt file_sink("file.log");
-    statlog::colorful_stdout_sink_mt stdout_sink(32_KB);
+    statlog::colorful_stdout_sink_mt stdout_sink(256_KB);
 
     auto logger = statlog::make_async_logger<pattern>("file", statlog::make_sink_list(std::move(file_sink), std::move(stdout_sink)));
     
-    for (int i = 0; i < 100000; ++i) {
-        logger.info("Hello from thread 1");
-        logger.trace("Hello from thread 1");
-    }
+    std::thread t1([&] {
+        for (int i = 0; i < 100000; i++) {
+            logger.info("Hello, {}", i);
+        }
+        });
+
+    std::thread t2([&] {
+        for (int i = 0; i < 100000; i++) {
+            logger.info("Hello, {}", i);
+        }
+        });
+    t1.join();
+    t2.join();
 }
 
 TEST_CASE("shared sinks") {

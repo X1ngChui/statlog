@@ -50,8 +50,8 @@ logger.warn("Low memory: {}MB free", 512);
 statlog::file_sink_st shared_sink("debug.log");
 
 constexpr statlog::pattern pattern("[%L][%t][%n] %v");
-auto net_logger = statlog::make_sync_logger("network", statlog::make_sink_list(shared_sink));
-auto db_logger = statlog::make_sync_logger("database", statlog::make_sink_list(shared_sink));
+auto net_logger = statlog::make_sync_logger<pattern>("network", statlog::make_sink_list(shared_sink));
+auto db_logger = statlog::make_sync_logger<pattern>("database", statlog::make_sink_list(shared_sink));
 
 net_logger.debug("Packet received: {} bytes", 1500);
 db_logger.info("Connection pool: {} active", 8);
