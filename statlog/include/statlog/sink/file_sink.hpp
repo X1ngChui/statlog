@@ -5,19 +5,17 @@
 
 #include <statlog/sink/sink.hpp>
 #include <statlog/platform/file.hpp>
-#include <statlog/utility/storage_units.hpp>
 #include <vector>
 #include <algorithm>
 #include <memory>
 
 namespace statlog {
-    template <typename M, bool Sync>
-    class basic_file_sink_t : public sink<basic_file_sink_t<M, Sync>, M> {
+    template <typename M>
+    class basic_file_sink_t : public sink<basic_file_sink_t<M>, M> {
     public:
         basic_file_sink_t(const std::filesystem::path& path,
-            std::ios_base::openmode mode = std::ios::app,
-            std::size_t max_buffer_size = 64_KB)
-            : _file(path, mode), _max_buffer_size(max_buffer_size) 
+            std::ios_base::openmode mode = std::ios::app)
+            : _file(path, mode)
         {    
         }
 
@@ -32,34 +30,21 @@ namespace statlog {
         }
 
         void _sink(const std::string& message) {
-            _buffer.insert(_buffer.end(), message.begin(), message.end());
-            if (_buffer.size() >= _max_buffer_size) {
-                _flush();
-            }
+            _file.write(message.data(), message.size());
         }
 
         void _flush() {
-            if (!_buffer.empty()) {
-                _file.write(_buffer.data(), _buffer.size());
-                if constexpr (Sync) {
-                    _file.flush();
-                }
-                _buffer.clear();
-            }
+            _file.flush();
         }
 
     private:
         file _file;
-        std::size_t _max_buffer_size;
-        std::vector<char> _buffer;
     };
 
-    template <typename M, bool Sync>
-    using basic_file_sink = basic_file_sink_t<M, Sync>;
+    template <typename M>
+    using basic_file_sink = basic_file_sink_t<M>;
 
-    using file_sink_st = basic_file_sink<null_mutex, false>;
-    using file_sink_mt = basic_file_sink<mutex, false>;
-    using sync_file_sink_st = basic_file_sink<null_mutex, true>;
-    using sync_file_sink_mt = basic_file_sink<mutex, true>;
+    using file_sink_st = basic_file_sink<null_mutex>;
+    using file_sink_mt = basic_file_sink<mutex>;
 }
 #endif

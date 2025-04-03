@@ -26,9 +26,9 @@ namespace statlog {
         }
     private:
         template <typename S, typename... Args>
-        void log_it(S&& sink, level l, const std::string& msg)
+        void log_it(S&& sink, level l, const std::string& message)
         {
-            sink.sink(msg);
+            sink.sink(message);
             if (this->should_flush(l)) {
                 sink.flush();
             }

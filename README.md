@@ -49,9 +49,9 @@ logger.warn("Low memory: {}MB free", 512);
 ```cpp
 statlog::colorful_stdout_sink_st shared_sink("debug.log");
 
-constexpr statlog::pattern pattern("%^[%L][%T][%n] %v%$");
-auto net_logger = statlog::make_sync_logger("network", statlog::make_sink_list(shared_sink));
-auto db_logger = statlog::make_sync_logger("database", statlog::make_sink_list(shared_sink));
+constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+auto net_logger = statlog::make_sync_logger<pattern>("network", statlog::make_sink_list(shared_sink));
+auto db_logger = statlog::make_sync_logger<pattern>("database", statlog::make_sink_list(shared_sink));
 
 net_logger.debug("Packet received: {} bytes", 1500);
 db_logger.info("Connection pool: {} active", 8);
@@ -81,16 +81,12 @@ More specifiers coming soon! Welcome for contribution!
 
 ## Sink Types
 
-| Sink Type                  | Thread Safety  | Description                                                                  |
-|----------------------------|----------------|------------------------------------------------------------------------------|
-| `file_sink_mt`             | Multi-thread   | Thread-safe file logging with **buffered writes** (relies on OS kernel flush)|
-| `file_sink_st`             | Single-thread  | Single-thread file I/O with **buffered writes** (relies on OS kernel flush)  |
-| `sync_file_sink_mt`        | Multi-thread   | Thread-safe file logging with **synchronous writes** (forces OS-level flush) |
-| `sync_file_sink_st`        | Single-thread  | Single-thread file I/O with **synchronous writes** (forces OS-level flush)   |
-| `stdout_sink_mt`           | Multi-thread   | Thread-safe console output                                                   |
-| `stdout_sink_st`           | Single-thread  | Single-thread console output                                                 |
-| `colorful_stdout_sink_mt`  | Multi-thread   | Thread-safe colored console output (ANSI escape code support)                |
-| `colorful_stdout_sink_st`  | Single-thread  | Single-thread colored console output (ANSI escape code support)              |
+| Sink Type                  | Thread Safety  | Description                                             |
+|----------------------------|----------------|---------------------------------------------------------|
+| `file_sink_mt`             | Multi-thread   | Thread-safe file logging                                |
+| `file_sink_st`             | Single-thread  | Single-thread file logging                              |
+| `stdout_sink_mt`           | Multi-thread   | Thread-safe console output (ANSI escape code support)   |
+| `stdout_sink_st`           | Single-thread  | Single-thread console output (ANSI escape code support) |
 
 
 ## Performance Considerations
