@@ -7,11 +7,9 @@
 #include <cstdio>
 
 TEST_CASE("exclusive sinks") {
-    using statlog::operator"" _KB;
-
-    static constexpr statlog::pattern pattern("%^[%L][%T][%n][%t] %v%$");
+    constexpr statlog::pattern pattern("%^[%L][%T][%n][%t] %v%$");
     statlog::file_sink_mt file_sink("file.log");
-    statlog::colorful_stdout_sink_mt stdout_sink(256_KB);
+    statlog::stdout_sink_mt stdout_sink;
 
     auto logger = statlog::make_async_logger<pattern>("file", statlog::make_sink_list(std::move(file_sink), std::move(stdout_sink)));
     
@@ -31,7 +29,7 @@ TEST_CASE("exclusive sinks") {
 }
 
 TEST_CASE("shared sinks") {
-    static constexpr statlog::pattern pattern("[%L][%t][%n] %v");
+    constexpr statlog::pattern pattern("[%L][%t][%n] %v");
     statlog::file_sink_st file_sink("shared_file.log");
     auto logger1 = statlog::make_sync_logger<pattern>("logger_one", statlog::make_sink_list(file_sink));
     auto logger2 = statlog::make_sync_logger<pattern>("logger_two", statlog::make_sink_list(file_sink));

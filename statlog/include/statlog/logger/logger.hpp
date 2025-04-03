@@ -88,15 +88,17 @@ namespace statlog {
 
         void log(level l, const std::string& message) {
             time_t now = std::time(nullptr);
-            static_cast<L*>(this)->_log(l, 
-                formatter<P>::format(logger_info{
-                    .level = l,
-                    .thread_id = std::this_thread::get_id(),
-                    .logger_name = _name,
-                    .message = message,
-                    .local_time = time::local_time(now),
-                    .utc_time = time::utc_time(now)
-                }));
+            std::string formatted_message;
+            auto it = std::back_inserter(formatted_message);
+            formatter_t<P>::format(it, logger_info{
+                .level = l,
+                .thread_id = std::this_thread::get_id(),
+                .logger_name = _name,
+                .message = message,
+                .local_time = time::local_time(now),
+                .utc_time = time::utc_time(now)
+                });
+            static_cast<L*>(this)->_log(l, formatted_message);
         }
 
         const std::string& name() const noexcept {
